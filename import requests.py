@@ -512,4 +512,121 @@ if data and "current_weather" in data:
                 <div class="weather-card" style="padding: 12px 4px;">
                     <div style="font-weight: bold; font-size: 0.9rem; color: {text_color};">{day_name}</div>
                     <div style="font-size: 0.7rem; color: {sub_text}; margin-bottom: 6px;">{date_short}</div>
-                    <div style="font-size:
+                    <div style="font-size: 1.8rem; margin: 6px 0;">{icon}</div>
+                    <div style="font-size: 0.95rem; font-weight: bold; color: {text_color};">{max_t}° <span style="font-weight: normal; color: {sub_text}; font-size: 0.85rem;">{min_t}°</span></div>
+                    <div style="font-size: 0.75rem; color: #38bdf8; margin-top: 6px;">💧 {rain_sum}mm</div>
+                </div>
+                """,
+            unsafe_allow_html=True,
+        )
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # --- HISTORICAL CLIMATE ARCHIVE COMPARISON SECTION ---
+    st.markdown("### 📜 Historical Climate Archive (Same Date Last Year)")
+    last_year_date = datetime.now(IST) - pd.DateOffset(years=1)
+    ly_date_str = last_year_date.strftime("%Y-%m-%d")
+    ly_display_str = last_year_date.strftime("%B %d, %Y")
+
+    archive_data = fetch_historical_archive(lat, lon, ly_date_str)
+
+    if archive_data and "daily" in archive_data:
+      ly_daily = archive_data["daily"]
+      ly_max = ly_daily.get("temperature_2m_max", [None])[0]
+      ly_min = ly_daily.get("temperature_2m_min", [None])[0]
+      ly_rain = ly_daily.get("precipitation_sum", [None])[0]
+
+      today_max = daily["temperature_2m_max"][0]
+      today_min = daily["temperature_2m_min"][0]
+      today_rain = daily["precipitation_sum"][0]
+
+      col_hist1, col_hist2, col_hist3 = st.columns(3)
+      with col_hist1:
+        st.markdown(
+            f"""
+                <div class="weather-card" style="text-align: left; padding: 12px 14px;">
+                    <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">Maximum Temperature</div>
+                    <div style="font-size: 1.2rem; font-weight: bold; color: {text_color};">Today: {today_max}°C</div>
+                    <div style="font-size: 0.85rem; color: #38bdf8; margin-top: 2px;">Last Year ({ly_display_str}): {ly_max}°C</div>
+                </div>
+                """,
+            unsafe_allow_html=True,
+        )
+      with col_hist2:
+        st.markdown(
+            f"""
+                <div class="weather-card" style="text-align: left; padding: 12px 14px;">
+                    <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">Minimum Temperature</div>
+                    <div style="font-size: 1.2rem; font-weight: bold; color: {text_color};">Today: {today_min}°C</div>
+                    <div style="font-size: 0.85rem; color: #38bdf8; margin-top: 2px;">Last Year ({ly_display_str}): {ly_min}°C</div>
+                </div>
+                """,
+            unsafe_allow_html=True,
+        )
+      with col_hist3:
+        st.markdown(
+            f"""
+                <div class="weather-card" style="text-align: left; padding: 12px 14px;">
+                    <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">Precipitation Sum</div>
+                    <div style="font-size: 1.2rem; font-weight: bold; color: {text_color};">Today: {today_rain} mm</div>
+                    <div style="font-size: 0.85rem; color: #38bdf8; margin-top: 2px;">Last Year ({ly_display_str}): {ly_rain} mm</div>
+                </div>
+                """,
+            unsafe_allow_html=True,
+        )
+    else:
+      st.info("Historical archive data unavailable for this coordinate date.")
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # --- COMPACT BOTTOM SECTION: TREND PLOT (LEFT) & LOCATION MAP (RIGHT) ---
+    bottom_col_left, bottom_col_right = st.columns(2)
+
+    with bottom_col_left:
+      st.markdown("### 📈 7-Day Visual Temperature Trend")
+      df_daily = pd.DataFrame({
+          "Date": [
+              datetime.strptime(d, "%Y-%m-%d").strftime("%a (%m/%d)")
+              for d in daily["time"][:7]
+          ],
+          "Max Temp (°C)": daily["temperature_2m_max"][:7],
+          "Min Temp (°C)": daily["temperature_2m_min"][:7],
+      }).set_index("Date")
+      st.line_chart(df_daily, height=300)
+
+    with bottom_col_right:
+      st.markdown("### 🗺️ Location Map")
+      df_map = pd.DataFrame({"lat": [lat], "lon": [lon]})
+      st.map(df_map, zoom=12, height=300)
+
+else:
+  st.error("Failed to retrieve weather information. Please check your connection.")
+
+# --- FOOTER & COPYRIGHT SECTION ---
+st.markdown("<br><hr>", unsafe_allow_html=True)
+
+if "visitor_count" not in st.session_state:
+  st.session_state["visitor_count"] = 1452
+
+col_foot1, col_foot2 = st.columns([3, 1])
+
+with col_foot1:
+  st.markdown(
+      f"""
+    <div style="color: {sub_text}; font-size: 0.85rem; line-height: 1.4;">
+        © 2026 <b>{COLLEGE_NAME}</b>. All rights reserved.<br>
+        Developed and maintained by <b>Dr. Kisor Mukhopadhyay</b>.
+    </div>
+    """,
+      unsafe_allow_html=True,
+  )
+
+with col_foot2:
+  st.markdown(
+      f"""
+    <div style="text-align: right; color: {sub_text}; font-size: 0.85rem;">
+        👁️ <b>Visitor Count:</b> {st.session_state['visitor_count']}
+    </div>
+    """,
+      unsafe_allow_html=True,
+  )
