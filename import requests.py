@@ -317,4 +317,199 @@ with col_head2:
 st.divider()
 
 # Selection Mode Bar
-mode
+mode = st.radio(
+    "Select Mode:",
+    ["Use College Preset Coordinate", "Search Other Location"],
+    horizontal=True,
+)
+
+is_india_location = True
+
+if mode == "Use College Preset Coordinate":
+  lat, lon = COLLEGE_LAT, COLLEGE_LON
+  is_india_location = True
+else:
+  custom_query = st.text_input("Enter City or Location Name:", "Kolkata")
+  if custom_query:
+    geo_data = geocode_location(custom_query)
+    if geo_data:
+      lat, lon, loc_name, country = geo_data
+      is_india_location = True if country.lower() == "india" else False
+    else:
+      st.error("Location not found. Defaulting back to College Campus.")
+      lat, lon = COLLEGE_LAT, COLLEGE_LON
+      is_india_location = True
+  else:
+    lat, lon = COLLEGE_LAT, COLLEGE_LON
+    is_india_location = True
+
+# Fetch Weather Data & Air Quality Data
+data = fetch_weather(lat, lon)
+aqi_data = fetch_air_quality(lat, lon)
+
+if data and "current_weather" in data:
+  current = data["current_weather"]
+  hourly = data.get("hourly", {})
+  daily = data.get("daily", {})
+
+  # --- SEVERE WEATHER & RAIN ALERT BANNER ---
+  alerts = check_weather_alerts(current.get("weathercode", 0), hourly)
+
+  if alerts:
+    st.markdown("### 🚨 Campus Weather Alerts")
+    for title, msg in alerts:
+      if "CRITICAL" in title or "HEAVY" in title:
+        st.error(f"**{title}:** {msg}")
+      else:
+        st.warning(f"**{title}:** {msg}")
+  else:
+    st.info("🟢 **No severe weather alerts.** Normal campus outdoor conditions.")
+
+  st.markdown("<br>", unsafe_allow_html=True)
+
+  # --- AIR QUALITY INDEX & HEALTH METRICS ---
+  if aqi_data and "current" in aqi_data:
+    standard_text = (
+        "Indian CPCB Standard" if is_india_location else "WHO Global Standard"
+    )
+    st.markdown(f"### 🍃 AIR QUALITY & HEALTH METRICS ({standard_text})")
+    aq_current = aqi_data["current"]
+
+    pm25 = aq_current.get("pm2_5", 0)
+    pm10 = aq_current.get("pm10", 0)
+    no2 = aq_current.get("nitrogen_dioxide", 0)
+    o3 = aq_current.get("ozone", 0)
+
+    status_label, status_color, advisory = interpret_aqi(
+        pm25, is_india=is_india_location
+    )
+
+    col_aqi1, col_aqi2, col_aqi3, col_aqi4, col_aqi5 = st.columns(5)
+
+    with col_aqi1:
+      st.markdown(
+          f"""
+            <div class="weather-card" style="border-left: 4px solid {status_color}; text-align: left; padding: 10px 12px;">
+                <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">Standard Category</div>
+                <div style="font-size: 1.2rem; font-weight: bold; color: {status_color};">{status_label}</div>
+            </div>
+            """,
+          unsafe_allow_html=True,
+      )
+
+    with col_aqi2:
+      st.markdown(
+          f"""
+            <div class="weather-card">
+                <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">PM₂.₅ (Fine Particulates)</div>
+                <div style="font-size: 1.1rem; font-weight: bold; color: {text_color};">{pm25} µg/m³</div>
+            </div>
+            """,
+          unsafe_allow_html=True,
+      )
+
+    with col_aqi3:
+      st.markdown(
+          f"""
+            <div class="weather-card">
+                <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">PM₁₀ (Coarse Dust)</div>
+                <div style="font-size: 1.1rem; font-weight: bold; color: {text_color};">{pm10} µg/m³</div>
+            </div>
+            """,
+          unsafe_allow_html=True,
+      )
+
+    with col_aqi4:
+      st.markdown(
+          f"""
+            <div class="weather-card">
+                <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">NO₂ (Nitrogen Dioxide)</div>
+                <div style="font-size: 1.1rem; font-weight: bold; color: {text_color};">{no2} µg/m³</div>
+            </div>
+            """,
+          unsafe_allow_html=True,
+      )
+
+    with col_aqi5:
+      st.markdown(
+          f"""
+            <div class="weather-card">
+                <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">O₃ (Ground Ozone)</div>
+                <div style="font-size: 1.1rem; font-weight: bold; color: {text_color};">{o3} µg/m³</div>
+            </div>
+            """,
+          unsafe_allow_html=True,
+      )
+
+    st.markdown(
+        f"""
+        <div style="background: {card_bg}; border: {card_border}; color: {text_color}; padding: 10px 14px; border-radius: 10px; margin-top: 10px; font-size: 0.85rem;">
+            💡 <b>Campus Health Advisory:</b> {advisory}
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+  st.markdown("<br>", unsafe_allow_html=True)
+
+  # --- HOURLY FORECAST CARDS ---
+  if hourly:
+    st.markdown("### ⏱️ UPCOMING HOURLY FORECAST CARDS")
+
+    current_hour_iso = datetime.now(IST).strftime("%Y-%m-%dT%H:00")
+    try:
+      start_idx = hourly["time"].index(current_hour_iso)
+    except ValueError:
+      start_idx = 0
+
+    hours_cols = st.columns(8)
+
+    for col_idx, i in enumerate(range(start_idx, start_idx + 8)):
+      if i < len(hourly["time"]):
+        time_val = hourly["time"][i]
+        dt_obj = datetime.fromisoformat(time_val)
+        time_formatted = dt_obj.strftime("%I:%M %p")
+
+        temp_val = hourly["temperature_2m"][i]
+        humidity_val = hourly["relativehumidity_2m"][i]
+        w_code = hourly["weathercode"][i]
+        icon, _ = get_weather_display(w_code)
+
+        with hours_cols[col_idx]:
+          st.markdown(
+              f"""
+                    <div class="weather-card">
+                        <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">{time_formatted}</div>
+                        <div style="font-size: 1.5rem; margin: 5px 0;">{icon}</div>
+                        <div style="font-size: 1.1rem; font-weight: bold; color: {text_color};">{temp_val}°C</div>
+                        <div style="font-size: 0.75rem; color: #38bdf8; margin-top: 4px;">💧 {humidity_val}%</div>
+                    </div>
+                    """,
+              unsafe_allow_html=True,
+          )
+
+  st.markdown("<br>", unsafe_allow_html=True)
+
+  # --- 7-DAY CAMPUS OUTLOOK CARDS ---
+  if daily:
+    st.markdown("### 📅 7-DAY CAMPUS OUTLOOK")
+    day_cols = st.columns(7)
+
+    for i in range(7):
+      date_str = daily["time"][i]
+      dt_day = datetime.strptime(date_str, "%Y-%m-%d")
+      day_name = "Today" if i == 0 else dt_day.strftime("%a")
+      date_short = dt_day.strftime("%m/%d")
+
+      max_t = daily["temperature_2m_max"][i]
+      min_t = daily["temperature_2m_min"][i]
+      rain_sum = daily["precipitation_sum"][i]
+      w_code = daily["weathercode"][i]
+      icon, _ = get_weather_display(w_code)
+
+      with day_cols[i]:
+        st.markdown(
+            f"""
+                <div class="weather-card" style="padding: 12px 4px;">
+                    <div style="font-weight: bold; font-size: 0.9rem; color: {text_color};">{day_name}</div>
+                    <div style="font-size: 0.7rem; color: {sub_text}; margin-bottom: 6px;">{date_short}</div>
