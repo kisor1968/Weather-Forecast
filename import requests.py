@@ -590,7 +590,7 @@ if data and "current_weather" in data:
               for d in daily["time"][:7]
           ],
           "Max Temp (°C)": daily["temperature_2m_max"][:7],
-          "Min Temp (°C)": daily["temperature_2m_min"][:7],
+          "MinTemp (°C)": daily["temperature_2m_min"][:7],
       }).set_index("Date")
       st.line_chart(df_daily, height=300)
 
@@ -602,31 +602,23 @@ if data and "current_weather" in data:
 else:
   st.error("Failed to retrieve weather information. Please check your connection.")
 
-# --- FOOTER & COPYRIGHT SECTION ---
+# --- FOOTER & COPYRIGHT SECTION MATCHING EXACT STYLE ---
 st.markdown("<br><hr>", unsafe_allow_html=True)
 
 if "visitor_count" not in st.session_state:
   st.session_state["visitor_count"] = 1452
 
-col_foot1, col_foot2 = st.columns([3, 1])
-
-with col_foot1:
-  st.markdown(
-      f"""
-    <div style="color: {sub_text}; font-size: 0.85rem; line-height: 1.4;">
-        © 2026 <b>{COLLEGE_NAME}</b>. All rights reserved.<br>
-        Developed and maintained by <b>Dr. Kisor Mukhopadhyay</b>.
+st.markdown(
+    f"""
+    <div style="text-align: center; margin-top: 20px;">
+        <p style="color: {sub_text}; font-size: 0.9rem; margin-bottom: 12px;">
+            © 2026 Prabhu Jagatbandhu College &nbsp;|&nbsp; Developed & Maintained by Dr. Kisor Mukhopadhyay
+        </p>
+        <div style="display: inline-flex; border-radius: 4px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.2); font-family: monospace; font-size: 0.85rem; font-weight: bold;">
+            <div style="background-color: #555555; color: #ffffff; padding: 6px 12px; letter-spacing: 1px;">TOTAL VISITORS</div>
+            <div style="background-color: #3b82f6; color: #ffffff; padding: 6px 12px; letter-spacing: 1px;">{st.session_state['visitor_count']} / 10</div>
+        </div>
     </div>
     """,
-      unsafe_allow_html=True,
-  )
-
-with col_foot2:
-  st.markdown(
-      f"""
-    <div style="text-align: right; color: {sub_text}; font-size: 0.85rem;">
-        👁️ <b>Visitor Count:</b> {st.session_state['visitor_count']}
-    </div>
-    """,
-      unsafe_allow_html=True,
-  )
+    unsafe_allow_html=True,
+)
