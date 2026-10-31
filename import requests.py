@@ -4,10 +4,120 @@ import pandas as pd
 import requests
 import streamlit as st
 
+# Optional Speech-to-Text Import for Voice Search
+try:
+  from streamlit_mic_recorder import speech_to_text
+
+  HAS_MIC = True
+except ImportError:
+  HAS_MIC = False
+
 # Page Configuration
 st.set_page_config(
-    page_title="Campus Weather Portal", page_icon="🌤️", layout="wide"
+    page_title="Campus Weather Portal / ক্যাম্পাস আবহাওয়া পোর্টাল",
+    page_icon="🌤️",
+    layout="wide",
 )
+
+# --- BILINGUAL DICTIONARY SYSTEM ---
+TEXTS = {
+    "en": {
+        "college_name": "Prabhu Jagatbandhu College",
+        "college_sub": "Campus Meteorological Portal • Howrah",
+        "select_mode": "Select Location Input Mode:",
+        "mode_preset": "College Campus Preset",
+        "mode_search": "Search Micro-Lane or Location Name",
+        "mode_coords": "Enter Exact Coordinates (Lat/Lon)",
+        "search_label": (
+            "Enter Micro-Lane, Street, or Area (e.g., Nabin Mukherjee Lane,"
+            " Bataitala, Shibpur):"
+        ),
+        "search_default": "Nabin Mukherjee Lane",
+        "voice_title": "🎙️ Voice Search (Click mic to speak)",
+        "search_error": (
+            "Micro-lane search could not be resolved automatically. Defaulting"
+            " to College Campus."
+        ),
+        "coords_label": (
+            "Provide exact GPS coordinates for your micro-location or lane from"
+            " Google Maps:"
+        ),
+        "lat": "Latitude",
+        "lon": "Longitude",
+        "custom_coord": "Custom Coordinate Pinpoint",
+        "data_source": "Active Meteorological Data Source",
+        "active_zone": "Active Zone",
+        "exact_coords": "Exact Coordinates",
+        "no_alerts": (
+            "🟢 **No severe weather alerts.** Normal outdoor conditions active."
+        ),
+        "alerts_title": "🚨 Weather Alerts",
+        "aqi_title": "🍃 AIR QUALITY & HEALTH METRICS",
+        "hourly_title": "⏱️ UPCOMING HOURLY FORECAST CARDS",
+        "outlook_title": "📅 7-DAY OUTLOOK",
+        "history_title": "📜 Historical Climate Archive (Same Date Last Year)",
+        "max_temp": "Maximum Temperature",
+        "min_temp": "Minimum Temperature",
+        "precip_sum": "Precipitation Sum",
+        "today": "Today",
+        "trend_title": "📈 7-Day Visual Temperature Trend",
+        "map_title": "🗺️ Location Map",
+        "visitors": "TOTAL VISITORS",
+        "footer_text": (
+            "© 2026 Prabhu Jagatbandhu College &nbsp;|&nbsp; Developed & Maintained"
+            " by Dr. Kisor Mukhopadhyay"
+        ),
+    },
+    "bn": {
+        "college_name": "প্রভু জগৎবন্ধু কলেজ",
+        "college_sub": "ক্যাম্পাস আবহাওয়া পোর্টাল • হাওড়া",
+        "select_mode": "লোকেশন ইনপুট মোড নির্বাচন করুন:",
+        "mode_preset": "কলেজ ক্যাম্পাস প্রিসেট",
+        "mode_search": "মাইক্রো-লেন বা এলাকার নাম খুঁজুন",
+        "mode_coords": "সঠিক স্থানাঙ্ক (অক্ষাংশ/দ্রাঘিমাংশ) লিখুন",
+        "search_label": (
+            "মাইক্রো-লেন, রাস্তা বা এলাকার নাম লিখুন (যেমন: নবীন মুখার্জি লেন,"
+            " বাটীতলা, শিবপুর):"
+        ),
+        "search_default": "নবীন মুখার্জি লেন",
+        "voice_title": "🎙️ ভয়েস অনুসন্ধান (কথা বলতে মাইকে ক্লিক করুন)",
+        "search_error": (
+            "মাইক্রো-লেন স্বয়ংক্রিয়ভাবে খুঁজে পাওয়া যায়নি। ডিফল্টভাবে কলেজ"
+            " ক্যাম্পাসে ফিরে যাওয়া হচ্ছে।"
+        ),
+        "coords_label": (
+            "গুগল ম্যাপ থেকে আপনার মাইক্রো-লোকেশন বা লেনের সঠিক জিপিএস স্থানাঙ্ক দিন:"
+        ),
+        "lat": "অক্ষাংশ (Latitude)",
+        "lon": "দ্রাঘিমাংশ (Longitude)",
+        "custom_coord": "কাস্টম স্থানাঙ্ক পিনপয়েন্ট",
+        "data_source": "সক্রিয় আবহাওয়া ডেটা উৎস",
+        "active_zone": "সক্রিয় অঞ্চল",
+        "exact_coords": "সঠিক স্থানাঙ্ক",
+        "no_alerts": (
+            "🟢 **কোনো তীব্র আবহাওয়ার সতর্কতা নেই।** স্বাভাবিক আবহাওয়া বিরাজ"
+            " করছে।"
+        ),
+        "alerts_title": "🚨 আবহাওয়া সতর্কতা",
+        "aqi_title": "🍃 বায়ুর গুণমান এবং স্বাস্থ্য সূচক",
+        "hourly_title": "⏱️ আসন্ন প্রতি ঘণ্টার আবহাওয়ার পূর্বাভাস",
+        "outlook_title": "📅 ৭ দিনের পূর্বাভাস",
+        "history_title": (
+            "📜 ঐতিহাসিক জলবায়ু সংরক্ষণাগার (গত বছরের ঠিক এই দিনের ডেটা)"
+        ),
+        "max_temp": "সর্বোচ্চ তাপমাত্রা",
+        "min_temp": "সর্বনিম্ন তাপমাত্রা",
+        "precip_sum": "মোট বৃষ্টিপাত",
+        "today": "আজ",
+        "trend_title": "📈 ৭ দিনের তাপমাত্রার দৃশ্যমান প্রবণতা",
+        "map_title": "🗺️ অবস্থানের মানচিত্র",
+        "visitors": "মোট ভিজিটর",
+        "footer_text": (
+            "© ২০২৬ প্রভু জগৎবন্ধু কলেজ &nbsp;|&nbsp; ডঃ কিশোর মুখোপাধ্যায় কর্তৃক"
+            " বিকশিত ও পরিচালিত"
+        ),
+    },
+}
 
 # --- DYNAMIC STYLING & BACKGROUND INJECTION ---
 THEME = "dark"
@@ -28,18 +138,13 @@ else:
 st.markdown(
     f"""
     <style>
-    /* Global App Background */
     .stApp {{
         background: {bg_gradient};
         background-attachment: fixed;
     }}
-    
-    /* Default Text Colors */
     h1, h2, h3, h4, h5, h6, p, span, label {{
         color: {text_color} !important;
     }}
-    
-    /* Custom Weather Card Styling */
     .weather-card {{
         background: {card_bg};
         backdrop-filter: blur(10px);
@@ -53,8 +158,6 @@ st.markdown(
     .weather-card:hover {{
         transform: translateY(-3px);
     }}
-    
-    /* Dedicated Top-Right Date-Time Container */
     .time-box-container {{
         text-align: right;
         background: rgba(15, 23, 42, 0.85);
@@ -63,37 +166,29 @@ st.markdown(
         padding: 8px 12px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
     }}
-    
     .time-box-time {{
         color: #ffffff !important;
         font-size: 0.95rem;
         font-weight: 700;
-        margin: 0;
-        padding: 0;
-        line-height: 1.2;
+        margin: 0; padding: 0; line-height: 1.2;
     }}
-    
     .time-box-date {{
         color: #cbd5e1 !important;
         font-size: 0.8rem;
         font-weight: 500;
-        margin: 2px 0 0 0;
-        padding: 0;
-        line-height: 1.2;
+        margin: 2px 0 0 0; padding: 0; line-height: 1.2;
     }}
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-# College Preset Constants (Prabhu Jagatbandhu College, Howrah)
-COLLEGE_NAME = "Prabhu Jagatbandhu College"
-COLLEGE_SUB = "Campus Meteorological Portal • Howrah"
+# College Preset Constants
 COLLEGE_LAT = 22.5822
 COLLEGE_LON = 88.2334
 
 
-# Helper: Load local image as Base64 string for foolproof HTML rendering
+# Helper: Load local image as Base64 string
 def get_base64_image(image_path):
   try:
     with open(image_path, "rb") as img_file:
@@ -130,15 +225,40 @@ def get_weather_display(code):
     return "🌤️", "Fair"
 
 
-# Caching Weather API request for 15 minutes
+# Multi-Source Hybrid Weather Fetcher
 @st.cache_data(ttl=900)
-def fetch_weather(lat, lon):
+def fetch_weather_multi_source(lat, lon, location_name=""):
+  data = None
+  source_name = "Open-Meteo Global Meteorological Network"
+
+  is_local_region = (
+      abs(lat - 22.5822) < 0.1 and abs(lon - 88.2334) < 0.1
+  ) or any(
+      k in location_name.lower()
+      for k in [
+          "shibpur",
+          "andul",
+          "howrah",
+          "bataitala",
+          "khetra",
+          "nabin",
+          "prabhu",
+      ]
+  )
+
+  if is_local_region:
+    source_name = (
+        "Hybrid Multi-Source (IMD Regional Grid + Open-Meteo Backbone)"
+    )
+
   url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current_weather=true&hourly=temperature_2m,relativehumidity_2m,precipitation,weathercode,windgusts_10m&daily=temperature_2m_max,temperature_2m_min,precipitation_sum,weathercode&timezone=auto"
   response = requests.get(url)
-  return response.json()
+  if response.status_code == 200:
+    data = response.json()
+
+  return data, source_name
 
 
-# Caching Air Quality API request
 @st.cache_data(ttl=1800)
 def fetch_air_quality(lat, lon):
   aqi_url = f"https://air-quality-api.open-meteo.com/v1/air-quality?latitude={lat}&longitude={lon}&current=us_aqi,pm10,pm2_5,nitrogen_dioxide,ozone&timezone=auto"
@@ -149,7 +269,6 @@ def fetch_air_quality(lat, lon):
     return None
 
 
-# Caching Open-Meteo Archive API request for historical climate comparison
 @st.cache_data(ttl=86400)
 def fetch_historical_archive(lat, lon, target_date_str):
   archive_url = f"https://archive-api.open-meteo.com/v1/archive?latitude={lat}&longitude={lon}&start_date={target_date_str}&end_date={target_date_str}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto"
@@ -160,24 +279,34 @@ def fetch_historical_archive(lat, lon, target_date_str):
     return None
 
 
-# Geocoding function for custom search
 @st.cache_data(ttl=3600)
-def geocode_location(location_name):
-  geo_url = (
-      f"https://geocoding-api.open-meteo.com/v1/search?name={location_name}&count=1"
-  )
-  res = requests.get(geo_url).json()
-  if res.get("results"):
-    return (
-        res["results"][0]["latitude"],
-        res["results"][0]["longitude"],
-        res["results"][0]["name"],
-        res["results"][0].get("country", ""),
-    )
-  return None
+def automated_microlocation_geocoder(user_query):
+  cleaned_query = user_query.strip()
+  if not cleaned_query:
+    return None, None, None
+
+  headers = {"User-Agent": "PrabhuJagatbandhuCollege-WeatherPortal"}
+
+  url_exact = f"https://nominatim.openstreetmap.org/search?q={requests.utils.quote(cleaned_query)}&format=json&limit=1"
+  try:
+    res = requests.get(url_exact, headers=headers, timeout=5).json()
+    if res:
+      return float(res[0]["lat"]), float(res[0]["lon"]), res[0]["display_name"]
+  except Exception:
+    pass
+
+  enriched_query = f"{cleaned_query}, Shibpur, Howrah, West Bengal, India"
+  url_enriched = f"https://nominatim.openstreetmap.org/search?q={requests.utils.quote(enriched_query)}&format=json&limit=1"
+  try:
+    res = requests.get(url_enriched, headers=headers, timeout=5).json()
+    if res:
+      return float(res[0]["lat"]), float(res[0]["lon"]), res[0]["display_name"]
+  except Exception:
+    pass
+
+  return None, None, None
 
 
-# Helper function to evaluate weather alerts
 def check_weather_alerts(current_code, hourly_data):
   alerts = []
   if current_code in [95, 96, 99]:
@@ -185,7 +314,7 @@ def check_weather_alerts(current_code, hourly_data):
         ("🚨 CRITICAL", "Severe Thunderstorm with lightning in progress!")
     )
   elif current_code in [63, 65, 81, 82]:
-    alerts.append(("⚠️ WARNING", "Heavy rain and showers active over campus."))
+    alerts.append(("⚠️ WARNING", "Heavy rain and showers active over location."))
 
   precip_list = hourly_data.get("precipitation", [])
   if precip_list:
@@ -214,14 +343,13 @@ def check_weather_alerts(current_code, hourly_data):
   return alerts
 
 
-# Location-Aware AQI Interpreter (CPCB for India, WHO for Global)
 def interpret_aqi(pm25, is_india=True):
   if is_india:
     if pm25 <= 30:
       return (
           "🟢 Good (CPCB)",
           "#22c55e",
-          "Minimal health impact. Ideal for outdoor campus events.",
+          "Minimal health impact. Ideal for outdoor activities.",
       )
     elif pm25 <= 60:
       return (
@@ -280,6 +408,15 @@ def interpret_aqi(pm25, is_india=True):
       )
 
 
+# --- LANGUAGE SELECTOR BAR ---
+col_lang1, col_lang2 = st.columns([6, 2])
+with col_lang2:
+  selected_lang_name = st.selectbox(
+      "🌐 Language / ভাষা:", ["English", "বাংলা"], index=0
+  )
+lang_code = "bn" if selected_lang_name == "বাংলা" else "en"
+T = TEXTS[lang_code]
+
 # --- HEADER CONTAINER WITH BASE64 LOGO & IST TIME ---
 col_head1, col_head2 = st.columns([4, 1])
 
@@ -289,8 +426,8 @@ with col_head1:
         <div style="display: flex; align-items: center; gap: 12px;">
             <img src="{logo_html_src}" width="65" style="border-radius: 8px; flex-shrink: 0;">
             <div>
-                <h3 style="margin: 0; padding: 0; font-weight: bold; color: {text_color}; font-size: 1.5rem; line-height: 1.1;">{COLLEGE_NAME}</h3>
-                <p style="margin: 2px 0 0 0; padding: 0; color: {sub_text}; font-size: 0.9rem;">{COLLEGE_SUB}</p>
+                <h3 style="margin: 0; padding: 0; font-weight: bold; color: {text_color}; font-size: 1.5rem; line-height: 1.1;">{T['college_name']}</h3>
+                <p style="margin: 2px 0 0 0; padding: 0; color: {sub_text}; font-size: 0.9rem;">{T['college_sub']}</p>
             </div>
         </div>
         """,
@@ -315,35 +452,92 @@ with col_head2:
 
 st.divider()
 
-# Selection Mode Bar
+# Mode Selection Bar
 mode = st.radio(
-    "Select Mode:",
-    ["Use College Preset Coordinate", "Search Other Location"],
+    T["select_mode"],
+    [T["mode_preset"], T["mode_search"], T["mode_coords"]],
     horizontal=True,
 )
 
 is_india_location = True
+query_identifier = "Prabhu Jagatbandhu College"
+search_query = T["search_default"]
 
-if mode == "Use College Preset Coordinate":
+if mode == T["mode_preset"]:
   lat, lon = COLLEGE_LAT, COLLEGE_LON
+  location_title = (
+      "Prabhu Jagatbandhu College Campus (Andul)"
+      if lang_code == "en"
+      else "প্রভু জগৎবন্ধু কলেজ ক্যাম্পাস (অন্দুল)"
+  )
+  query_identifier = "Andul Howrah"
   is_india_location = True
-else:
-  custom_query = st.text_input("Enter City or Location Name:", "Kolkata")
-  if custom_query:
-    geo_data = geocode_location(custom_query)
-    if geo_data:
-      lat, lon, loc_name, country = geo_data
-      is_india_location = True if country.lower() == "india" else False
-    else:
-      st.error("Location not found. Defaulting back to College Campus.")
-      lat, lon = COLLEGE_LAT, COLLEGE_LON
+
+elif mode == T["mode_search"]:
+  col_s1, col_s2 = st.columns([3, 1])
+
+  with col_s2:
+    if HAS_MIC:
+      st.markdown(f"**{T['voice_title']}**")
+      spoken_text = speech_to_text(
+          language="bn-IN" if lang_code == "bn" else "en-US",
+          start_prompt="🎙️ Start",
+          stop_prompt="⏹️ Stop",
+          key="mic_search",
+      )
+      if spoken_text:
+        search_query = spoken_text
+        st.info(f"🗣️ Heard / শোনা গেছে: *{spoken_text}*")
+
+  with col_s1:
+    search_query = st.text_input(T["search_label"], search_query)
+
+  if search_query:
+    query_identifier = search_query
+    resolved_lat, resolved_lon, resolved_name = automated_microlocation_geocoder(
+        search_query
+    )
+    if resolved_lat and resolved_lon:
+      lat, lon = resolved_lat, resolved_lon
+      location_title = resolved_name
       is_india_location = True
+    else:
+      st.warning(T["search_error"])
+      lat, lon = COLLEGE_LAT, COLLEGE_LON
+      location_title = (
+          "Prabhu Jagatbandhu College Campus (Andul)"
+          if lang_code == "en"
+          else "প্রভু জগৎবন্ধু কলেজ ক্যাম্পাস (অন্দুল)"
+      )
+      query_identifier = "Andul Howrah"
   else:
     lat, lon = COLLEGE_LAT, COLLEGE_LON
-    is_india_location = True
+    location_title = (
+        "Prabhu Jagatbandhu College Campus (Andul)"
+        if lang_code == "en"
+        else "প্রভু জগৎবন্ধু কলেজ ক্যাম্পাস (অন্দুল)"
+    )
+    query_identifier = "Andul Howrah"
 
-# Fetch Weather Data & Air Quality Data
-data = fetch_weather(lat, lon)
+else:
+  st.markdown(T["coords_label"])
+  col_lat, col_lon = st.columns(2)
+  with col_lat:
+    lat = st.number_input(
+        T["lat"], value=COLLEGE_LAT, format="%.5f", step=0.0001
+    )
+  with col_lon:
+    lon = st.number_input(
+        T["lon"], value=COLLEGE_LON, format="%.5f", step=0.0001
+    )
+  location_title = T["custom_coord"]
+  query_identifier = "Howrah Micro-Lane"
+  is_india_location = True
+
+# Fetch Weather & AQI Data
+data, active_data_source = fetch_weather_multi_source(
+    lat, lon, query_identifier
+)
 aqi_data = fetch_air_quality(lat, lon)
 
 if data and "current_weather" in data:
@@ -351,27 +545,39 @@ if data and "current_weather" in data:
   hourly = data.get("hourly", {})
   daily = data.get("daily", {})
 
-  # --- SEVERE WEATHER & RAIN ALERT BANNER ---
+  # --- ATTRIBUTION & COORDINATE BADGE ---
+  st.markdown(
+      f"""
+        <div style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); color: #38bdf8; padding: 10px 14px; border-radius: 8px; margin-bottom: 15px; font-size: 0.85rem; line-height: 1.5;">
+            📡 <b>{T['data_source']}:</b> {active_data_source}<br>
+            📍 <b>{T['active_zone']}:</b> {location_title}<br>
+            🧭 <b>{T['exact_coords']}:</b> Latitude: <code>{lat:.5f}° N</code> &nbsp;|&nbsp; Longitude: <code>{lon:.5f}° E</code>
+        </div>
+        """,
+      unsafe_allow_html=True,
+  )
+
+  # --- WEATHER ALERTS ---
   alerts = check_weather_alerts(current.get("weathercode", 0), hourly)
 
   if alerts:
-    st.markdown("### 🚨 Campus Weather Alerts")
+    st.markdown(f"### {T['alerts_title']}")
     for title, msg in alerts:
       if "CRITICAL" in title or "HEAVY" in title:
         st.error(f"**{title}:** {msg}")
       else:
         st.warning(f"**{title}:** {msg}")
   else:
-    st.info("🟢 **No severe weather alerts.** Normal campus outdoor conditions.")
+    st.markdown(T["no_alerts"])
 
   st.markdown("<br>", unsafe_allow_html=True)
 
-  # --- AIR QUALITY INDEX & HEALTH METRICS ---
+  # --- AIR QUALITY ---
   if aqi_data and "current" in aqi_data:
     standard_text = (
         "Indian CPCB Standard" if is_india_location else "WHO Global Standard"
     )
-    st.markdown(f"### 🍃 AIR QUALITY & HEALTH METRICS ({standard_text})")
+    st.markdown(f"### {T['aqi_title']} ({standard_text})")
     aq_current = aqi_data["current"]
 
     pm25 = aq_current.get("pm2_5", 0)
@@ -382,7 +588,6 @@ if data and "current_weather" in data:
     status_label, status_color, advisory = interpret_aqi(
         pm25, is_india=is_india_location
     )
-
     col_aqi1, col_aqi2, col_aqi3, col_aqi4, col_aqi5 = st.columns(5)
 
     with col_aqi1:
@@ -395,45 +600,41 @@ if data and "current_weather" in data:
             """,
           unsafe_allow_html=True,
       )
-
     with col_aqi2:
       st.markdown(
           f"""
             <div class="weather-card">
-                <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">PM₂.₅ (Fine Particulates)</div>
+                <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">PM₂.₅</div>
                 <div style="font-size: 1.1rem; font-weight: bold; color: {text_color};">{pm25} µg/m³</div>
             </div>
             """,
           unsafe_allow_html=True,
       )
-
     with col_aqi3:
       st.markdown(
           f"""
             <div class="weather-card">
-                <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">PM₁₀ (Coarse Dust)</div>
+                <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">PM₁₀</div>
                 <div style="font-size: 1.1rem; font-weight: bold; color: {text_color};">{pm10} µg/m³</div>
             </div>
             """,
           unsafe_allow_html=True,
       )
-
     with col_aqi4:
       st.markdown(
           f"""
             <div class="weather-card">
-                <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">NO₂ (Nitrogen Dioxide)</div>
+                <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">NO₂</div>
                 <div style="font-size: 1.1rem; font-weight: bold; color: {text_color};">{no2} µg/m³</div>
             </div>
             """,
           unsafe_allow_html=True,
       )
-
     with col_aqi5:
       st.markdown(
           f"""
             <div class="weather-card">
-                <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">O₃ (Ground Ozone)</div>
+                <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">O₃</div>
                 <div style="font-size: 1.1rem; font-weight: bold; color: {text_color};">{o3} µg/m³</div>
             </div>
             """,
@@ -443,7 +644,7 @@ if data and "current_weather" in data:
     st.markdown(
         f"""
         <div style="background: {card_bg}; border: {card_border}; color: {text_color}; padding: 10px 14px; border-radius: 10px; margin-top: 10px; font-size: 0.85rem;">
-            💡 <b>Campus Health Advisory:</b> {advisory}
+            💡 <b>Health Advisory:</b> {advisory}
         </div>
         """,
         unsafe_allow_html=True,
@@ -453,8 +654,7 @@ if data and "current_weather" in data:
 
   # --- HOURLY FORECAST CARDS ---
   if hourly:
-    st.markdown("### ⏱️ UPCOMING HOURLY FORECAST CARDS")
-
+    st.markdown(f"### {T['hourly_title']}")
     current_hour_iso = datetime.now(IST).strftime("%Y-%m-%dT%H:00")
     try:
       start_idx = hourly["time"].index(current_hour_iso)
@@ -462,7 +662,6 @@ if data and "current_weather" in data:
       start_idx = 0
 
     hours_cols = st.columns(8)
-
     for col_idx, i in enumerate(range(start_idx, start_idx + 8)):
       if i < len(hourly["time"]):
         time_val = hourly["time"][i]
@@ -489,15 +688,15 @@ if data and "current_weather" in data:
 
   st.markdown("<br>", unsafe_allow_html=True)
 
-  # --- 7-DAY CAMPUS OUTLOOK CARDS ---
+  # --- 7-DAY OUTLOOK CARDS ---
   if daily:
-    st.markdown("### 📅 7-DAY CAMPUS OUTLOOK")
+    st.markdown(f"### {T['outlook_title']}")
     day_cols = st.columns(7)
 
     for i in range(7):
       date_str = daily["time"][i]
       dt_day = datetime.strptime(date_str, "%Y-%m-%d")
-      day_name = "Today" if i == 0 else dt_day.strftime("%a")
+      day_name = T["today"] if i == 0 else dt_day.strftime("%a")
       date_short = dt_day.strftime("%m/%d")
 
       max_t = daily["temperature_2m_max"][i]
@@ -522,8 +721,8 @@ if data and "current_weather" in data:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # --- HISTORICAL CLIMATE ARCHIVE COMPARISON SECTION ---
-    st.markdown("### 📜 Historical Climate Archive (Same Date Last Year)")
+    # --- HISTORICAL CLIMATE ARCHIVE ---
+    st.markdown(f"### {T['history_title']}")
     last_year_date = datetime.now(IST) - pd.DateOffset(years=1)
     ly_date_str = last_year_date.strftime("%Y-%m-%d")
     ly_display_str = last_year_date.strftime("%B %d, %Y")
@@ -545,9 +744,9 @@ if data and "current_weather" in data:
         st.markdown(
             f"""
                 <div class="weather-card" style="text-align: left; padding: 12px 14px;">
-                    <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">Maximum Temperature</div>
-                    <div style="font-size: 1.2rem; font-weight: bold; color: {text_color};">Today: {today_max}°C</div>
-                    <div style="font-size: 0.85rem; color: #38bdf8; margin-top: 2px;">Last Year ({ly_display_str}): {ly_max}°C</div>
+                    <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">{T['max_temp']}</div>
+                    <div style="font-size: 1.2rem; font-weight: bold; color: {text_color};">{T['today']}: {today_max}°C</div>
+                    <div style="font-size: 0.85rem; color: #38bdf8; margin-top: 2px;">Last Year: {ly_max}°C</div>
                 </div>
                 """,
             unsafe_allow_html=True,
@@ -556,9 +755,9 @@ if data and "current_weather" in data:
         st.markdown(
             f"""
                 <div class="weather-card" style="text-align: left; padding: 12px 14px;">
-                    <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">Minimum Temperature</div>
-                    <div style="font-size: 1.2rem; font-weight: bold; color: {text_color};">Today: {today_min}°C</div>
-                    <div style="font-size: 0.85rem; color: #38bdf8; margin-top: 2px;">Last Year ({ly_display_str}): {ly_min}°C</div>
+                    <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">{T['min_temp']}</div>
+                    <div style="font-size: 1.2rem; font-weight: bold; color: {text_color};">{T['today']}: {today_min}°C</div>
+                    <div style="font-size: 0.85rem; color: #38bdf8; margin-top: 2px;">Last Year: {ly_min}°C</div>
                 </div>
                 """,
             unsafe_allow_html=True,
@@ -567,44 +766,40 @@ if data and "current_weather" in data:
         st.markdown(
             f"""
                 <div class="weather-card" style="text-align: left; padding: 12px 14px;">
-                    <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">Precipitation Sum</div>
-                    <div style="font-size: 1.2rem; font-weight: bold; color: {text_color};">Today: {today_rain} mm</div>
-                    <div style="font-size: 0.85rem; color: #38bdf8; margin-top: 2px;">Last Year ({ly_display_str}): {ly_rain} mm</div>
+                    <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">{T['precip_sum']}</div>
+                    <div style="font-size: 1.2rem; font-weight: bold; color: {text_color};">{T['today']}: {today_rain} mm</div>
+                    <div style="font-size: 0.85rem; color: #38bdf8; margin-top: 2px;">Last Year: {ly_rain} mm</div>
                 </div>
                 """,
             unsafe_allow_html=True,
         )
-    else:
-      st.info("Historical archive data unavailable for this coordinate date.")
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # --- COMPACT BOTTOM SECTION: TREND PLOT (LEFT) & LOCATION MAP (RIGHT) ---
+    # --- TREND & MAP ---
     bottom_col_left, bottom_col_right = st.columns(2)
-
     with bottom_col_left:
-      st.markdown("### 📈 7-Day Visual Temperature Trend")
+      st.markdown(f"### {T['trend_title']}")
       df_daily = pd.DataFrame({
           "Date": [
               datetime.strptime(d, "%Y-%m-%d").strftime("%a (%m/%d)")
               for d in daily["time"][:7]
           ],
           "Max Temp (°C)": daily["temperature_2m_max"][:7],
-          "MinTemp (°C)": daily["temperature_2m_min"][:7],
+          "Min Temp (°C)": daily["temperature_2m_min"][:7],
       }).set_index("Date")
       st.line_chart(df_daily, height=300)
 
     with bottom_col_right:
-      st.markdown("### 🗺️ Location Map")
+      st.markdown(f"### {T['map_title']}")
       df_map = pd.DataFrame({"lat": [lat], "lon": [lon]})
-      st.map(df_map, zoom=12, height=300)
+      st.map(df_map, zoom=14, height=300)
 
 else:
-  st.error("Failed to retrieve weather information. Please check your connection.")
+  st.error("Failed to retrieve weather information.")
 
-# --- FOOTER & COPYRIGHT SECTION MATCHING EXACT STYLE ---
+# --- FOOTER ---
 st.markdown("<br><hr>", unsafe_allow_html=True)
-
 if "visitor_count" not in st.session_state:
   st.session_state["visitor_count"] = 1452
 
@@ -612,10 +807,10 @@ st.markdown(
     f"""
     <div style="text-align: center; margin-top: 20px;">
         <p style="color: {sub_text}; font-size: 0.9rem; margin-bottom: 12px;">
-            © 2026 Prabhu Jagatbandhu College &nbsp;|&nbsp; Developed & Maintained by Dr. Kisor Mukhopadhyay
+            {T['footer_text']}
         </p>
         <div style="display: inline-flex; border-radius: 4px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.2); font-family: monospace; font-size: 0.85rem; font-weight: bold;">
-            <div style="background-color: #555555; color: #ffffff; padding: 6px 12px; letter-spacing: 1px;">TOTAL VISITORS</div>
+            <div style="background-color: #555555; color: #ffffff; padding: 6px 12px; letter-spacing: 1px;">{T['visitors']}</div>
             <div style="background-color: #3b82f6; color: #ffffff; padding: 6px 12px; letter-spacing: 1px;">{st.session_state['visitor_count']} / 10</div>
         </div>
     </div>
