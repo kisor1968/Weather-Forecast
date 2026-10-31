@@ -52,7 +52,10 @@ TEXTS = {
             "🟢 **No severe weather alerts.** Normal outdoor conditions active."
         ),
         "alerts_title": "🚨 Weather Alerts",
-        "aqi_title": "🍃 AIR QUALITY & HEALTH METRICS",
+        "aqi_title": "🍃 AIR QUALITY: ACTUAL VS. SAFE STANDARD",
+        "overall_status": "Overall Status",
+        "standard_limit": "Standard Limit",
+        "safe_limit": "Safe / Within Limit",
         "hourly_title": "⏱️ UPCOMING HOURLY FORECAST CARDS",
         "outlook_title": "📅 7-DAY OUTLOOK",
         "history_title": "📜 Historical Climate Archive (Same Date Last Year)",
@@ -99,7 +102,10 @@ TEXTS = {
             " করছে।"
         ),
         "alerts_title": "🚨 আবহাওয়া সতর্কতা",
-        "aqi_title": "🍃 বায়ুর গুণমান এবং স্বাস্থ্য সূচক",
+        "aqi_title": "🍃 বায়ুর গুণমান: প্রকৃত বনাম নিরাপদ আদর্শ মাত্রা",
+        "overall_status": "সার্বিক অবস্থা",
+        "standard_limit": "আদর্শ সীমা",
+        "safe_limit": "নিরাপদ সীমার মধ্যে",
         "hourly_title": "⏱️ আসন্ন প্রতি ঘণ্টার আবহাওয়ার পূর্বাভাস",
         "outlook_title": "📅 ৭ দিনের পূর্বাভাস",
         "history_title": (
@@ -572,18 +578,23 @@ if data and "current_weather" in data:
 
   st.markdown("<br>", unsafe_allow_html=True)
 
-  # --- AIR QUALITY ---
+  # --- AIR QUALITY: ACTUAL VS. SAFE STANDARD ---
   if aqi_data and "current" in aqi_data:
-    standard_text = (
-        "Indian CPCB Standard" if is_india_location else "WHO Global Standard"
-    )
-    st.markdown(f"### {T['aqi_title']} ({standard_text})")
+    std_name = "CPCB (India)" if is_india_location else "WHO Global"
+    st.markdown(f"### {T['aqi_title']} ({std_name})")
     aq_current = aqi_data["current"]
 
     pm25 = aq_current.get("pm2_5", 0)
     pm10 = aq_current.get("pm10", 0)
     no2 = aq_current.get("nitrogen_dioxide", 0)
     o3 = aq_current.get("ozone", 0)
+
+    std_limits = {
+        "pm25": 60 if is_india_location else 15,
+        "pm10": 100 if is_india_location else 45,
+        "no2": 80 if is_india_location else 25,
+        "o3": 100,
+    }
 
     status_label, status_color, advisory = interpret_aqi(
         pm25, is_india=is_india_location
@@ -594,50 +605,49 @@ if data and "current_weather" in data:
       st.markdown(
           f"""
             <div class="weather-card" style="border-left: 4px solid {status_color}; text-align: left; padding: 10px 12px;">
-                <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">Standard Category</div>
-                <div style="font-size: 1.2rem; font-weight: bold; color: {status_color};">{status_label}</div>
+                <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">{T['overall_status']}</div>
+                <div style="font-size: 1.1rem; font-weight: bold; color: {status_color};">{status_label}</div>
             </div>
             """,
           unsafe_allow_html=True,
       )
+
+    def render_pollutant_card(name, val, limit):
+      ratio = (val / limit) * 100 if limit > 0 else 0
+      if val <= limit:
+        badge_color = "#22c55e"
+        badge_text = T["safe_limit"]
+      else:
+        badge_color = "#ef4444"
+        badge_text = f"+{ratio - 100:.0f}% Above Standard"
+
+      return f"""
+        <div class="weather-card">
+            <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">{name}</div>
+            <div style="font-size: 1.1rem; font-weight: bold; color: {text_color};">{val} <span style="font-size: 0.75rem; font-weight: normal;">µg/m³</span></div>
+            <div style="font-size: 0.7rem; color: {sub_text}; margin-top: 2px;">{T['standard_limit']}: <b>{limit} µg/m³</b></div>
+            <div style="font-size: 0.7rem; color: {badge_color}; font-weight: bold; margin-top: 4px;">{badge_text}</div>
+        </div>
+        """
+
     with col_aqi2:
       st.markdown(
-          f"""
-            <div class="weather-card">
-                <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">PM₂.₅</div>
-                <div style="font-size: 1.1rem; font-weight: bold; color: {text_color};">{pm25} µg/m³</div>
-            </div>
-            """,
+          render_pollutant_card("PM₂.₅", pm25, std_limits["pm25"]),
           unsafe_allow_html=True,
       )
     with col_aqi3:
       st.markdown(
-          f"""
-            <div class="weather-card">
-                <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">PM₁₀</div>
-                <div style="font-size: 1.1rem; font-weight: bold; color: {text_color};">{pm10} µg/m³</div>
-            </div>
-            """,
+          render_pollutant_card("PM₁₀", pm10, std_limits["pm10"]),
           unsafe_allow_html=True,
       )
     with col_aqi4:
       st.markdown(
-          f"""
-            <div class="weather-card">
-                <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">NO₂</div>
-                <div style="font-size: 1.1rem; font-weight: bold; color: {text_color};">{no2} µg/m³</div>
-            </div>
-            """,
+          render_pollutant_card("NO₂", no2, std_limits["no2"]),
           unsafe_allow_html=True,
       )
     with col_aqi5:
       st.markdown(
-          f"""
-            <div class="weather-card">
-                <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">O₃</div>
-                <div style="font-size: 1.1rem; font-weight: bold; color: {text_color};">{o3} µg/m³</div>
-            </div>
-            """,
+          render_pollutant_card("O₃", o3, std_limits["o3"]),
           unsafe_allow_html=True,
       )
 
