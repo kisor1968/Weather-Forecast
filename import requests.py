@@ -14,7 +14,7 @@ except ImportError:
 
 # Page Configuration
 st.set_page_config(
-    page_title="Campus Weather Portal / ক্যাম্পাস আবহাওয়া পোর্টাল",
+    page_title="Weather Portal / আবহাওয়া পোর্টাল",
     page_icon="🌤️",
     layout="wide",
 )
@@ -23,7 +23,7 @@ st.set_page_config(
 TEXTS = {
     "en": {
         "college_name": "Prabhu Jagatbandhu College",
-        "college_sub": "Campus Meteorological Portal • Howrah",
+        "college_sub": "Meteorological Portal • Howrah",
         "select_mode": "Select Location Input Mode:",
         "mode_preset": "College Campus Preset",
         "mode_search": "Search Micro-Lane or Location Name",
