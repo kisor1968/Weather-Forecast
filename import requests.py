@@ -102,6 +102,9 @@ TEXTS = {
         "multi_plot_select": (
             "Select Parameters to Compare (Hourly Horizon):"
         ),
+        "hist_trend_title": (
+            "📈 Historical Weather Trend Comparison (This Week vs. Last Year)"
+        ),
         "export_title": "📥 Export Meteorological & Air Quality Report",
         "csv_btn": "📥 Download CSV Report",
         "txt_btn": "📄 Download Text Summary",
@@ -198,6 +201,9 @@ TEXTS = {
         ),
         "multi_plot_title": "📊 বহু-পরামিতি আবহাওয়া বিশ্লেষণ",
         "multi_plot_select": "তুলনা করার জন্য পরামিতি নির্বাচন করুন (প্রতি ঘণ্টা):",
+        "hist_trend_title": (
+            "📈 ঐতিহাসিক আবহাওয়া প্রবণতা তুলনা (চলতি সপ্তাহ বনাম গত বছর)"
+        ),
         "export_title": "📥 আবহাওয়া ও বায়ুর গুণমান প্রতিবেদন রপ্তানি করুন",
         "csv_btn": "📥 সিএসভি প্রতিবেদন ডাউনলোড করুন",
         "txt_btn": "📄 সারসংক্ষেপ ডাউনলোড করুন",
@@ -291,6 +297,9 @@ TEXTS = {
         "multi_plot_title": "📊 बहु-पैरामीटर मौसम विश्लेषण",
         "multi_plot_select": (
             "तुलना के लिए पैरामीटर चुनें (प्रति घंटा क्षितिज):"
+        ),
+        "hist_trend_title": (
+            "📈 ऐतिहासिक मौसम प्रवृत्ति तुलना (इस सप्ताह बनाम पिछला वर्ष)"
         ),
         "export_title": "📥 मौसम और वायु गुणवत्ता रिपोर्ट निर्यात करें",
         "csv_btn": "📥 CSV रिपोर्ट डाउनलोड करें",
@@ -480,6 +489,16 @@ def fetch_air_quality(lat, lon):
 @st.cache_data(ttl=86400)
 def fetch_historical_archive(lat, lon, target_date_str):
   archive_url = f"https://archive-api.open-meteo.com/v1/archive?latitude={lat}&longitude={lon}&start_date={target_date_str}&end_date={target_date_str}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto"
+  try:
+    res = requests.get(archive_url)
+    return res.json()
+  except Exception:
+    return None
+
+
+@st.cache_data(ttl=86400)
+def fetch_historical_week_archive(lat, lon, start_date_str, end_date_str):
+  archive_url = f"https://archive-api.open-meteo.com/v1/archive?latitude={lat}&longitude={lon}&start_date={start_date_str}&end_date={end_date_str}&daily=temperature_2m_max,temperature_2m_min&timezone=auto"
   try:
     res = requests.get(archive_url)
     return res.json()
@@ -1080,7 +1099,6 @@ if data and "current_weather" in data:
     # --- MULTI-PARAMETER PLOTTING & ANALYTICS ---
     st.markdown(f"### {T['multi_plot_title']}")
     if hourly and "time" in hourly:
-      # Prepare DataFrame for next 24 hours of hourly data
       h_times = [
           datetime.fromisoformat(t).strftime("%m-%d %H:%M")
           for t in hourly["time"][:24]
@@ -1117,6 +1135,41 @@ if data and "current_weather" in data:
         st.info(
             "Please select at least one parameter above to render the chart."
         )
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # --- HISTORICAL WEATHER TREND COMPARISON (THIS WEEK VS. LAST YEAR) ---
+    st.markdown(f"### {T['hist_trend_title']}")
+    try:
+      current_start_date = datetime.strptime(daily["time"][0], "%Y-%m-%d")
+      current_end_date = datetime.strptime(daily["time"][-1], "%Y-%m-%d")
+
+      ly_start_date = current_start_date - pd.DateOffset(years=1)
+      ly_end_date = current_end_date - pd.DateOffset(years=1)
+
+      ly_week_data = fetch_historical_week_archive(
+          lat,
+          lon,
+          ly_start_date.strftime("%Y-%m-%d"),
+          ly_end_date.strftime("%Y-%m-%d"),
+      )
+
+      if ly_week_data and "daily" in ly_week_data:
+        ly_daily = ly_week_data["daily"]
+        df_hist_trend = pd.DataFrame(
+            {
+                "Day": [f"Day {i+1}" for i in range(7)],
+                "This Week Max Temp (°C)": daily["temperature_2m_max"][:7],
+                "Last Year Max Temp (°C)": ly_daily.get(
+                    "temperature_2m_max", [0] * 7
+                )[:7],
+            }
+        ).set_index("Day")
+        st.line_chart(df_hist_trend, height=300)
+      else:
+        st.info("Historical week trend data unavailable for this coordinate.")
+    except Exception:
+      st.info("Could not load historical week comparison chart.")
 
     st.markdown("<br>", unsafe_allow_html=True)
 
