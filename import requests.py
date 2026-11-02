@@ -20,7 +20,7 @@ st.set_page_config(
     layout="wide",
 )
 
-# --- BILINGUAL DICTIONARY SYSTEM ---
+# --- TRILINGUAL DICTIONARY SYSTEM (EN / BN / HI) ---
 TEXTS = {
     "en": {
         "college_name": "Prabhu Jagatbandhu College",
@@ -54,6 +54,17 @@ TEXTS = {
         ),
         "alerts_title": "🚨 Weather Alerts",
         "sat_title": "🛰️ REAL-TIME SATELLITE & RADAR IMAGERY (INSAT-3D / RADAR)",
+        "sat_radio_label": "Select View Mode:",
+        "sat_mode_radar": "🌐 Interactive Live Regional Radar (In-App)",
+        "sat_mode_imd": "🛰️ Official IMD INSAT-3D Satellite Viewer Portal",
+        "sat_hub_info": (
+            "🔒 Official India Meteorological Department (IMD) Satellite Hub"
+        ),
+        "sat_hub_desc": (
+            "Access real-time INSAT-3D / INSAT-3DR Infrared, Visible, and Water"
+            " Vapour spectral channels directly on IMD's portal:"
+        ),
+        "sat_btn_text": "🚀 Open Official IMD INSAT-3D Satellite Portal",
         "sat_source_note": (
             "Satellite observations are streamed live from the India"
             " Meteorological Department (IMD) INSAT-3D/3DR satellite network."
@@ -111,6 +122,17 @@ TEXTS = {
         "sat_title": (
             "🛰️ রিয়েল-টাইম স্যাটেলাইট ও রাডার চিত্র (ইনস্যাট-৩ডি / রাডার)"
         ),
+        "sat_radio_label": "দৃশ্য মোড নির্বাচন করুন:",
+        "sat_mode_radar": "🌐 ইন্টারেক্টিভ লাইভ আঞ্চলিক রাডার (অ্যাপের ভেতরে)",
+        "sat_mode_imd": "🛰️ অফিসিয়াল IMD ইন্টারেক্টিভ স্যাটেলাইট পোর্টাল",
+        "sat_hub_info": (
+            "🔒 অফিসিয়াল ভারত আবহাওয়া বিভাগ (IMD) স্যাটেলাইট হাব"
+        ),
+        "sat_hub_desc": (
+            "IMD এর পোর্টালে সরাসরি ইনস্যাট-৩ডি ইনফ্রারেড, দৃশ্যমান এবং জলীয় বাষ্প"
+            " চ্যানেলগুলি দেখুন:"
+        ),
+        "sat_btn_text": "🚀 অফিসিয়াল IMD INSAT-3D স্যাটেলাইট পোর্টাল খুলুন",
         "sat_source_note": (
             "উপগ্রহ চিত্রগুলি ভারত আবহাওয়া বিভাগ (IMD) INSAT-3D/3DR উপগ্রহ নেটওয়ার্ক"
             " থেকে লাইভ স্ট্রিম করা হয়।"
@@ -134,6 +156,72 @@ TEXTS = {
         "footer_text": (
             "© ২০২৬ প্রভু জগৎবন্ধু কলেজ &nbsp;|&nbsp; ডঃ কিশোর মুখোপাধ্যায় কর্তৃক"
             " বিকশিত ও পরিচালিত"
+        ),
+    },
+    "hi": {
+        "college_name": "प्रभु जगत्बंधु कॉलेज",
+        "college_sub": "कैंपस मौसम विज्ञान पोर्टल • हावड़ा",
+        "select_mode": "स्थान इनपुट मोड चुनें:",
+        "mode_preset": "कॉलेज परिसर प्रीसेट",
+        "mode_search": "माइक्रो-लेन या स्थान का नाम खोजें",
+        "mode_coords": "सटीक निर्देशांक (अक्षांश/देशांतर) दर्ज करें",
+        "search_label": (
+            "माइक्रो-लेन, सड़क या क्षेत्र का नाम दर्ज करें (जैसे: नबीन मुखर्जी"
+            " लेन, बटाईतला, शिबपुर):"
+        ),
+        "search_default": "नबीन मुखर्जी लेन",
+        "voice_title": "🎙️ वॉयस खोज (बोलने के लिए माइक पर क्लिक करें)",
+        "search_error": (
+            "माइक्रो-लेन खोज का समाधान नहीं हो सका। डिफ़ॉल्ट रूप से कॉलेज परिसर"
+            " में वापस जाया जा रहा है।"
+        ),
+        "coords_label": (
+            "गूगल मैप्स से अपने स्थान या लेन के सटीक जीपीएस निर्देशांक प्रदान करें:"
+        ),
+        "lat": "अक्षांश (Latitude)",
+        "lon": "देशांतर (Longitude)",
+        "custom_coord": "कस्टम निर्देशांक बिंदु",
+        "data_source": "सक्रिय मौसम डेटा स्रोत",
+        "active_zone": "सक्रिय क्षेत्र",
+        "exact_coords": "सटीक निर्देशांक",
+        "no_alerts": (
+            "🟢 **कोई गंभीर मौसम चेतावनी नहीं।** सामान्य बाहरी स्थिति सक्रिय"
+            " है।"
+        ),
+        "alerts_title": "🚨 मौसम अलर्ट",
+        "sat_title": "🛰️ रीयल-टाइम उपग्रह और रडार इमेजरी (INSAT-3D / रडार)",
+        "sat_radio_label": "व्यू मोड चुनें:",
+        "sat_mode_radar": "🌐 इंटरेक्टिव लाइव क्षेत्रीय रडार (इन-ऐप)",
+        "sat_mode_imd": "🛰️ आधिकारिक IMD INSAT-3D उपग्रह दर्शक पोर्टल",
+        "sat_hub_info": "🔒 आधिकारिक भारत मौसम विज्ञान विभाग (IMD) उपग्रह हब",
+        "sat_hub_desc": (
+            "IMD के पोर्टल पर सीधे INSAT-3D इन्फ्रारेड, दृश्यमान और जल वाष्प"
+            " स्पेक्ट्रल चैनल देखें:"
+        ),
+        "sat_btn_text": "🚀 आधिकारिक IMD INSAT-3D उपग्रह पोर्टल खोलें",
+        "sat_source_note": (
+            "उपग्रह अवलोकन भारत मौसम विज्ञान विभाग (IMD) INSAT-3D/3DR उपग्रह"
+            " नेटवर्क से लाइव स्ट्रीम किए जाते हैं।"
+        ),
+        "aqi_title": "🍃 वायु गुणवत्ता: वास्तविक बनाम सुरक्षित मानक",
+        "overall_status": "समग्र स्थिति",
+        "standard_limit": "मानक सीमा",
+        "safe_limit": "सुरक्षित सीमा के भीतर",
+        "hourly_title": "⏱️ आगामी प्रति घंटा पूर्वानुमान",
+        "outlook_title": "📅 7-दिवसीय पूर्वानुमान",
+        "history_title": (
+            "📜 ऐतिहासिक जलवायु पुरालेख (पिछले वर्ष की इसी तिथि का डेटा)"
+        ),
+        "max_temp": "अधिकतम तापमान",
+        "min_temp": "न्यूनतम तापमान",
+        "precip_sum": "कुल वर्षा",
+        "today": "आज",
+        "trend_title": "📈 7-दिवसीय तापमान रुझान",
+        "map_title": "🗺️ स्थान का मानचित्र",
+        "visitors": "कुल आगंतुक",
+        "footer_text": (
+            "© 2026 प्रभु जगत्बंधु कॉलेज &nbsp;|&nbsp; डॉ. किशोर मुखोपाध्याय द्वारा"
+            " विकसित एवं संचालित"
         ),
     },
 }
@@ -433,13 +521,20 @@ def interpret_aqi(pm25, is_india=True):
       )
 
 
-# --- LANGUAGE SELECTOR BAR ---
+# --- LANGUAGE SELECTOR BAR (ENGLISH / BENGALI / HINDI) ---
 col_lang1, col_lang2 = st.columns([6, 2])
 with col_lang2:
   selected_lang_name = st.selectbox(
-      "🌐 Language / ভাষা:", ["English", "বাংলা"], index=0
+      "🌐 Language / ভাষা / भाषा:", ["English", "বাংলা", "हिंदी"], index=0
   )
-lang_code = "bn" if selected_lang_name == "বাংলা" else "en"
+
+if selected_lang_name == "বাংলা":
+  lang_code = "bn"
+elif selected_lang_name == "हिंदी":
+  lang_code = "hi"
+else:
+  lang_code = "en"
+
 T = TEXTS[lang_code]
 
 # --- HEADER CONTAINER WITH BASE64 LOGO & IST TIME ---
@@ -489,11 +584,13 @@ search_query = T["search_default"]
 
 if mode == T["mode_preset"]:
   lat, lon = COLLEGE_LAT, COLLEGE_LON
-  location_title = (
-      "Prabhu Jagatbandhu College Campus (Andul)"
-      if lang_code == "en"
-      else "প্রভু জগৎবন্ধু কলেজ ক্যাম্পাস (অন্দুল)"
-  )
+  if lang_code == "bn":
+    location_title = "প্রভু জগৎবন্ধু কলেজ ক্যাম্পাস (অন্দুল)"
+  elif lang_code == "hi":
+    location_title = "प्रभु जगत्बंधु कॉलेज परिसर (अंदुल)"
+  else:
+    location_title = "Prabhu Jagatbandhu College Campus (Andul)"
+
   query_identifier = "Andul Howrah"
   is_india_location = True
 
@@ -503,15 +600,20 @@ elif mode == T["mode_search"]:
   with col_s2:
     if HAS_MIC:
       st.markdown(f"**{T['voice_title']}**")
+      speech_lang = (
+          "hi-IN"
+          if lang_code == "hi"
+          else ("bn-IN" if lang_code == "bn" else "en-US")
+      )
       spoken_text = speech_to_text(
-          language="bn-IN" if lang_code == "bn" else "en-US",
+          language=speech_lang,
           start_prompt="🎙️ Start",
           stop_prompt="⏹️ Stop",
           key="mic_search",
       )
       if spoken_text:
         search_query = spoken_text
-        st.info(f"🗣️ Heard / শোনা গেছে: *{spoken_text}*")
+        st.info(f"🗣️ Heard / सुना गया: *{spoken_text}*")
 
   with col_s1:
     search_query = st.text_input(T["search_label"], search_query)
@@ -528,19 +630,11 @@ elif mode == T["mode_search"]:
     else:
       st.warning(T["search_error"])
       lat, lon = COLLEGE_LAT, COLLEGE_LON
-      location_title = (
-          "Prabhu Jagatbandhu College Campus (Andul)"
-          if lang_code == "en"
-          else "প্রভু জগৎবন্ধু কলেজ ক্যাম্পাস (অন্দুল)"
-      )
+      location_title = "Prabhu Jagatbandhu College Campus (Andul)"
       query_identifier = "Andul Howrah"
   else:
     lat, lon = COLLEGE_LAT, COLLEGE_LON
-    location_title = (
-        "Prabhu Jagatbandhu College Campus (Andul)"
-        if lang_code == "en"
-        else "প্রভু জগৎবন্ধু কলেজ ক্যাম্পাস (অন্দুল)"
-    )
+    location_title = "Prabhu Jagatbandhu College Campus (Andul)"
     query_identifier = "Andul Howrah"
 
 else:
@@ -595,35 +689,30 @@ if data and "current_weather" in data:
 
   st.markdown("<br>", unsafe_allow_html=True)
 
-  # --- REAL-TIME SATELLITE & RADAR IMAGERY SECTION (STREAMLINED) ---
+  # --- REAL-TIME SATELLITE & RADAR IMAGERY SECTION (TRILINGUAL) ---
   with st.expander(f"🛰️ **{T['sat_title']}**", expanded=True):
     sat_mode = st.radio(
-        "Select View Mode / দৃশ্য মোড নির্বাচন করুন:",
-        [
-            "🌐 Interactive Live Regional Radar (In-App)",
-            "🛰️ Official IMD INSAT-3D Satellite Viewer Portal",
-        ],
+        T["sat_radio_label"],
+        [T["sat_mode_radar"], T["sat_mode_imd"]],
         horizontal=True,
     )
 
-    if "Radar" in sat_mode:
+    if sat_mode == T["sat_mode_radar"]:
       components.iframe(
           f"https://www.rainviewer.com/map.html?loc={lat},{lon},8&ofr=0&t=1&col=1&c=1&o=90&s=1&v=0&sm=1&sn=1",
           height=500,
           scrolling=False,
       )
     else:
-      st.info(
-          "🔒 Official India Meteorological Department (IMD) Satellite Hub"
-      )
+      st.info(T["sat_hub_info"])
       st.markdown(
-          """
+          f"""
             <div style="text-align: center; margin: 20px 0;">
                 <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 14px;">
-                    Access real-time INSAT-3D / INSAT-3DR Infrared, Visible, and Water Vapour spectral channels directly on IMD's portal:
+                    {T['sat_hub_desc']}
                 </p>
                 <a href="https://mausam.imd.gov.in/responsive/satellite.php" target="_blank" style="background-color: #059669; color: white; padding: 12px 26px; text-decoration: none; font-weight: bold; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); display: inline-block; font-size: 1rem;">
-                    🚀 Open Official IMD INSAT-3D Satellite Portal
+                    {T['sat_btn_text']}
                 </a>
             </div>
             """,
