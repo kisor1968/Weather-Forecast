@@ -105,6 +105,30 @@ TEXTS = {
         "hist_trend_title": (
             "📈 Historical Weather Trend (This Week vs. Last Year)"
         ),
+        "glossary_title": "📖 Meteorological Educational Glossary",
+        "glossary_select": "Select Term to Learn:",
+        "glossary_terms": {
+            "PM2.5 (Particulate Matter)": (
+                "Fine inhalable atmospheric particulate matter with diameters"
+                " that are generally 2.5 micrometers and smaller. Major health"
+                " and air quality index determinant under CPCB guidelines."
+            ),
+            "Relative Humidity": (
+                "The ratio of the partial pressure of water vapor to the"
+                " equilibrium vapor pressure of water at a given temperature,"
+                " expressed as a percentage."
+            ),
+            "Precipitation Sum": (
+                "The total condensed water vapor falling to the earth's surface,"
+                " including rain, drizzle, and showers, measured in millimeters"
+                " (mm) over a specified accumulation period."
+            ),
+            "Atmospheric Pressure": (
+                "The force exerted against a surface by the weight of the air"
+                " column above that surface, crucial for identifying low and"
+                " high-pressure synoptic weather systems."
+            ),
+        },
         "export_title": "📥 Export Meteorological & Air Quality Report",
         "csv_btn": "📥 Download CSV Report",
         "txt_btn": "📄 Download Text Summary",
@@ -204,6 +228,27 @@ TEXTS = {
         "hist_trend_title": (
             "📈 ঐতিহাসিক আবহাওয়া প্রবণতা (চলতি সপ্তাহ বনাম গত বছর)"
         ),
+        "glossary_title": "📖 আবহাওয়া সংক্রান্ত শিক্ষামূলক শব্দকোষ",
+        "glossary_select": "শিক্ষার জন্য শব্দ নির্বাচন করুন:",
+        "glossary_terms": {
+            "PM2.5 (বায়ুবাহিত কণা)": (
+                "২.৫ মাইক্রোমিটার বা তার কম ব্যাসের সূক্ষ্ম বায়ুবাহিত কণা।"
+                " সিপিসিবি (CPCB) নির্দেশিকা অনুযায়ী বায়ুর গুণমান নির্ধারণে এটি"
+                " একটি প্রধান স্বাস্থ্য সূচক।"
+            ),
+            "আপেক্ষিক আর্দ্রতা": (
+                "একটি নির্দিষ্ট তাপমাত্রায় বাতাসে উপস্থিত জলীয় বাষ্পের পরিমাণ এবং"
+                " সর্বোচ্চ ধারণক্ষমতার অনুপাত, যা শতকরা হারে প্রকাশিত হয়।"
+            ),
+            "মোট বৃষ্টিপাত": (
+                "পৃথিবীর পৃষ্ঠে পতিত বৃষ্টি, গুঁড়ি গুঁড়ি বৃষ্টি এবং ঝাড়ধারার"
+                " মোট পরিমাণ, যা মিলিমিটারে (mm) পরিমাপ করা হয়।"
+            ),
+            "বায়ুমণ্ডলীয় চাপ": (
+                "বায়ুমণ্ডলের ওজনের কারণে ভূপৃষ্ঠের প্রতি একক এলাকায় প্রযুক্ত বল,"
+                " যা নিম্ন ও উচ্চচাপের আবহাওয়া ব্যবস্থা বুঝতে অত্যন্ত গুরুত্বপূর্ণ।"
+            ),
+        },
         "export_title": "📥 আবহাওয়া ও বায়ুর গুণমান প্রতিবেদন রপ্তানি করুন",
         "csv_btn": "📥 সিএসভি প্রতিবেদন ডাউনলোড করুন",
         "txt_btn": "📄 সারসংক্ষেপ ডাউনলোড করুন",
@@ -301,6 +346,27 @@ TEXTS = {
         "hist_trend_title": (
             "📈 ऐतिहासिक मौसम प्रवृत्ति (इस सप्ताह बनाम पिछला वर्ष)"
         ),
+        "glossary_title": "📖 मौसम विज्ञान संबंधी शैक्षिक शब्दावली",
+        "glossary_select": "सीखने के लिए शब्द चुनें:",
+        "glossary_terms": {
+            "PM2.5 (कणिकीय पदार्थ)": (
+                "2.5 माइक्रोमीटर या उससे कम व्यास वाले सूक्ष्म वायुजनित कण।"
+                " CPCB दिशानिर्देशों के तहत वायु गुणवत्ता सूचकांक का मुख्य"
+                " निर्धारक।"
+            ),
+            "सापेक्ष आर्द्रता": (
+                "दी गई तापमान पर हवा में जल वाष्प के आंशिक दबाव और संतृप्त वाष्प"
+                " दबाव का अनुपात, जिसे प्रतिशत में व्यक्त किया जाता है।"
+            ),
+            "कुल वर्षा": (
+                "पृथ्वी की सतह पर गिरने वाली कुल वर्षा, रिमझिम और बौछारों की"
+                " मात्रा, जिसे मिलीमीटर (mm) में मापा जाता है।"
+            ),
+            "वायुमंडलीय दबाव": (
+                "हवा के वजन द्वारा सतह पर लगाया जाने वाला बल, जो कम और उच्च"
+                " दबाव प्रणालियों को समझने के लिए आवश्यक है।"
+            ),
+        },
         "export_title": "📥 मौसम और वायु गुणवत्ता रिपोर्ट निर्यात करें",
         "csv_btn": "📥 CSV रिपोर्ट डाउनलोड करें",
         "txt_btn": "📄 सारांश रिपोर्ट डाउनलोड करें",
@@ -1176,6 +1242,25 @@ if data and "current_weather" in data:
           st.info("Historical week trend data unavailable.")
       except Exception:
         st.info("Could not load historical week comparison chart.")
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # --- TRILINGUAL EDUCATIONAL GLOSSARY WIDGET ---
+    with st.expander(f"📖 **{T['glossary_title']}**", expanded=False):
+      selected_term = st.selectbox(
+          T["glossary_select"], list(T["glossary_terms"].keys())
+      )
+      term_definition = T["glossary_terms"][selected_term]
+      st.markdown(
+          f"""
+            <div style="background: {card_bg}; border: {card_border}; padding: 14px 16px; border-radius: 8px; margin-top: 8px;">
+                <p style="color: {text_color}; font-size: 0.95rem; margin: 0; line-height: 1.6;">
+                    <b>{selected_term}:</b> {term_definition}
+                </p>
+            </div>
+            """,
+          unsafe_allow_html=True,
+      )
 
     st.markdown("<br>", unsafe_allow_html=True)
 
