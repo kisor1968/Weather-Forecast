@@ -98,6 +98,10 @@ TEXTS = {
             "🟢 **All Clear for Travel:** Favorable weather and air quality"
             " conditions for outdoor commute."
         ),
+        "multi_plot_title": "📊 Multi-Parameter Meteorological Analysis",
+        "multi_plot_select": (
+            "Select Parameters to Compare (Hourly Horizon):"
+        ),
         "export_title": "📥 Export Meteorological & Air Quality Report",
         "csv_btn": "📥 Download CSV Report",
         "txt_btn": "📄 Download Text Summary",
@@ -192,6 +196,8 @@ TEXTS = {
             "🟢 **ভ্রমণের জন্য অনুকূল পরিবেশ:** আবহাওয়া এবং বায়ুর গুণমান উভয়ই স্বাভাবিক"
             " এবং নিরাপদ রয়েছে।"
         ),
+        "multi_plot_title": "📊 বহু-পরামিতি আবহাওয়া বিশ্লেষণ",
+        "multi_plot_select": "তুলনা করার জন্য পরামিতি নির্বাচন করুন (প্রতি ঘণ্টা):",
         "export_title": "📥 আবহাওয়া ও বায়ুর গুণমান প্রতিবেদন রপ্তানি করুন",
         "csv_btn": "📥 সিএসভি প্রতিবেদন ডাউনলোড করুন",
         "txt_btn": "📄 সারসংক্ষেপ ডাউনলোড করুন",
@@ -281,6 +287,10 @@ TEXTS = {
         "commuter_safe": (
             "🟢 **यात्रा के लिए बिल्कुल अनुकूल:** मौसम और वायु गुणवत्ता दोनों बाहरी"
             " गतिविधियों के लिए सुरक्षित हैं।"
+        ),
+        "multi_plot_title": "📊 बहु-पैरामीटर मौसम विश्लेषण",
+        "multi_plot_select": (
+            "तुलना के लिए पैरामीटर चुनें (प्रति घंटा क्षितिज):"
         ),
         "export_title": "📥 मौसम और वायु गुणवत्ता रिपोर्ट निर्यात करें",
         "csv_btn": "📥 CSV रिपोर्ट डाउनलोड करें",
@@ -1064,6 +1074,49 @@ if data and "current_weather" in data:
             """,
           unsafe_allow_html=True,
       )
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # --- MULTI-PARAMETER PLOTTING & ANALYTICS ---
+    st.markdown(f"### {T['multi_plot_title']}")
+    if hourly and "time" in hourly:
+      # Prepare DataFrame for next 24 hours of hourly data
+      h_times = [
+          datetime.fromisoformat(t).strftime("%m-%d %H:%M")
+          for t in hourly["time"][:24]
+      ]
+      h_temps = hourly["temperature_2m"][:24]
+      h_humidity = hourly["relativehumidity_2m"][:24]
+      h_precip = hourly["precipitation"][:24]
+      h_gusts = hourly["windgusts_10m"][:24]
+
+      df_hourly_multi = pd.DataFrame(
+          {
+              "Time": h_times,
+              "Temperature (°C)": h_temps,
+              "Humidity (%)": h_humidity,
+              "Precipitation (mm)": h_precip,
+              "Wind Gusts (km/h)": h_gusts,
+          }
+      ).set_index("Time")
+
+      selected_params = st.multiselect(
+          T["multi_plot_select"],
+          [
+              "Temperature (°C)",
+              "Humidity (%)",
+              "Precipitation (mm)",
+              "Wind Gusts (km/h)",
+          ],
+          default=["Temperature (°C)", "Humidity (%)"],
+      )
+
+      if selected_params:
+        st.line_chart(df_hourly_multi[selected_params], height=320)
+      else:
+        st.info(
+            "Please select at least one parameter above to render the chart."
+        )
 
     st.markdown("<br>", unsafe_allow_html=True)
 
