@@ -487,6 +487,19 @@ st.markdown(
         border-radius: 8px !important;
         padding: 8px 14px !important;
     }}
+    /* Ensure sidebar elements are clearly visible */
+    [data-testid="stSidebar"] h1, 
+    [data-testid="stSidebar"] h2, 
+    [data-testid="stSidebar"] h3, 
+    [data-testid="stSidebar"] p, 
+    [data-testid="stSidebar"] span, 
+    [data-testid="stSidebar"] label {{
+        color: #0f172a !important;
+    }}
+    [data-testid="stSidebar"] details summary p {{
+        color: #0f172a !important;
+        font-weight: bold !important;
+    }}
     /* Fix for invisible download button text */
     .stDownloadButton button, div.stButton > button {{
         background-color: #1e293b !important;
