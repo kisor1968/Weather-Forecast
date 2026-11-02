@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 import base64
+import io
 import pandas as pd
 import requests
 import streamlit as st
@@ -76,6 +77,9 @@ TEXTS = {
         "hourly_title": "⏱️ UPCOMING HOURLY FORECAST CARDS",
         "outlook_title": "📅 7-DAY OUTLOOK",
         "history_title": "📜 Historical Climate Archive (Same Date Last Year)",
+        "export_title": "📥 Export Meteorological & Air Quality Report",
+        "csv_btn": "📥 Download CSV Report",
+        "txt_btn": "📄 Download Text Summary",
         "max_temp": "Maximum Temperature",
         "min_temp": "Minimum Temperature",
         "precip_sum": "Precipitation Sum",
@@ -146,6 +150,9 @@ TEXTS = {
         "history_title": (
             "📜 ঐতিহাসিক জলবায়ু সংরক্ষণাগার (গত বছরের ঠিক এই দিনের ডেটা)"
         ),
+        "export_title": "📥 আবহাওয়া ও বায়ুর গুণমান প্রতিবেদন রপ্তানি করুন",
+        "csv_btn": "📥 সিএসভি প্রতিবেদন ডাউনলোড করুন",
+        "txt_btn": "📄 সারসংক্ষেপ ডাউনলোড করুন",
         "max_temp": "সর্বোচ্চ তাপমাত্রা",
         "min_temp": "সর্বনিম্ন তাপমাত্রা",
         "precip_sum": "মোট বৃষ্টিপাত",
@@ -212,6 +219,9 @@ TEXTS = {
         "history_title": (
             "📜 ऐतिहासिक जलवायु पुरालेख (पिछले वर्ष की इसी तिथि का डेटा)"
         ),
+        "export_title": "📥 मौसम और वायु गुणवत्ता रिपोर्ट निर्यात करें",
+        "csv_btn": "📥 CSV रिपोर्ट डाउनलोड करें",
+        "txt_btn": "📄 सारांश रिपोर्ट डाउनलोड करें",
         "max_temp": "अधिकतम तापमान",
         "min_temp": "न्यूनतम तापमान",
         "precip_sum": "कुल वर्षा",
@@ -955,6 +965,58 @@ if data and "current_weather" in data:
       st.markdown(f"### {T['map_title']}")
       df_map = pd.DataFrame({"lat": [lat], "lon": [lon]})
       st.map(df_map, zoom=14, height=300)
+
+  st.markdown("<br>", unsafe_allow_html=True)
+
+  # --- EXPORT METEOROLOGICAL & AIR QUALITY REPORT ---
+  st.markdown(f"### {T['export_title']}")
+  export_df = pd.DataFrame({
+      "Timestamp (IST)": [datetime.now(IST).strftime("%Y-%m-%d %H:%M")],
+      "Location": [location_title],
+      "Latitude": [lat],
+      "Longitude": [lon],
+      "Current Temp (°C)": [current.get("temperature", "N/A")],
+      "Weather Code": [current.get("weathercode", "N/A")],
+      "PM2.5 (µg/m³)": [
+          aqi_data["current"].get("pm2_5", "N/A") if aqi_data else "N/A"
+      ],
+      "AQI Status": [status_label if aqi_data else "N/A"],
+  })
+
+  col_exp1, col_exp2 = st.columns(2)
+  with col_exp1:
+    csv_buffer = export_df.to_csv(index=False).encode("utf-8")
+    st.download_button(
+        label=T["csv_btn"],
+        data=csv_buffer,
+        file_name=(
+            f"campus_weather_report_{datetime.now(IST).strftime('%Y-%m-%d')}.csv"
+        ),
+        mime="text/csv",
+    )
+
+  with col_exp2:
+    txt_summary = f"""
+    PRABHU JAGATBANDHU COLLEGE - CAMPUS METEOROLOGICAL REPORT
+    Date: {datetime.now(IST).strftime('%Y-%m-%d %H:%M:%S')} IST
+    Location: {location_title}
+    Coordinates: {lat:.5f}° N, {lon:.5f}° E
+    
+    CURRENT METRICS:
+    - Temperature: {current.get('temperature', 'N/A')}°C
+    - Air Quality (PM2.5): {aqi_data['current'].get('pm2_5', 'N/A') if aqi_data else 'N/A'} µg/m³
+    - Status: {status_label if aqi_data else 'N/A'}
+    
+    Advisory: {advisory if aqi_data else 'Normal conditions active.'}
+    """
+    st.download_button(
+        label=T["txt_btn"],
+        data=txt_summary.encode("utf-8"),
+        file_name=(
+            f"campus_weather_summary_{datetime.now(IST).strftime('%Y-%m-%d')}.txt"
+        ),
+        mime="text/plain",
+    )
 
 else:
   st.error("Failed to retrieve weather information.")
