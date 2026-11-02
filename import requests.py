@@ -134,6 +134,24 @@ TEXTS = {
             "Primary scientific literature, reanalysis models, and observational"
             " datasets supporting the portal analytics engine."
         ),
+        "faq_sidebar_title": "💡 Help & FAQ Guide",
+        "faq_q1": "How do I search for my local lane?",
+        "faq_a1": (
+            "Select 'Search Micro-Lane or Location Name' from the top menu, then"
+            " type your street name (e.g., Nabin Mukherjee Lane) or use voice"
+            " search."
+        ),
+        "faq_q2": "What does the AQI standard mean?",
+        "faq_a2": (
+            "The app automatically switches between CPCB (India) standards for"
+            " local regions and WHO global standards based on your location"
+            " coordinates."
+        ),
+        "faq_q3": "How is the visitor count tracked?",
+        "faq_a3": (
+            "Visitor statistics are tracked securely via cloud persistence to"
+            " record unique session visits to the campus portal."
+        ),
         "export_title": "📥 Export Meteorological & Air Quality Report",
         "csv_btn": "📥 Download CSV Report",
         "txt_btn": "📄 Download Text Summary",
@@ -259,6 +277,24 @@ TEXTS = {
             "পোর্টালের অ্যানালিটিক্স ইঞ্জিনকে সমর্থনকারী প্রাথমিক বৈজ্ঞানিক সাহিত্য,"
             " পুনঃবিশ্লেষণ মডেল এবং পর্যবেক্ষণমূলক ডেটাসেট।"
         ),
+        "faq_sidebar_title": "💡 সাহায্য ও প্রায়শই জিজ্ঞাসিত প্রশ্ন (FAQ)",
+        "faq_q1": "আমি কীভাবে আমার এলাকার রাস্তা খুঁজব?",
+        "faq_a1": (
+            "উপরের মেনু থেকে 'মাইক্রো-লেন বা এলাকার নাম খুঁজুন' নির্বাচন করুন এবং"
+            " আপনার রাস্তার নাম লিখুন (যেমন: নবীন মুখার্জি লেন) অথবা ভয়েস সার্চ"
+            " ব্যবহার করুন।"
+        ),
+        "faq_q2": "AQI মানক বলতে কী বোঝায়?",
+        "faq_a2": (
+            "অ্যাপটি আপনার অবস্থানের স্থানাঙ্কের উপর ভিত্তি করে স্বয়ংক্রিয়ভাবে"
+            " স্থানীয় এলাকার জন্য CPCB (ভারত) এবং বিশ্বব্যাপী WHO মানদণ্ডের মধ্যে"
+            " পরিবর্তন করে।"
+        ),
+        "faq_q3": "ভিজিটর সংখ্যা কীভাবে গণনা করা হয়?",
+        "faq_a3": (
+            "ক্যাম্পাস পোর্টালে অনন্য সেশন ভিজিট রেকর্ড করতে ক্লাউড সার্ভারের"
+            " মাধ্যমে ভিজিটর পরিসংখ্যান নিরাপদে ট্র্যাক করা হয়।"
+        ),
         "export_title": "📥 আবহাওয়া ও বায়ুর গুণমান প্রতিবেদন রপ্তানি করুন",
         "csv_btn": "📥 সিএসভি প্রতিবেদন ডাউনলোড করুন",
         "txt_btn": "📄 সারসংক্ষেপ ডাউনলোড করুন",
@@ -382,6 +418,24 @@ TEXTS = {
             "पोर्टल एनालिटिक्स इंजन का समर्थन करने वाले प्राथमिक वैज्ञानिक"
             " साहित्य, पुनर्वलेषण मॉडल और अवलोकन संबंधी डेटासेट।"
         ),
+        "faq_sidebar_title": "💡 सहायता और अक्सर पूछे जाने वाले प्रश्न (FAQ)",
+        "faq_q1": "मैं अपने स्थानीय लेन की खोज कैसे करूं?",
+        "faq_a1": (
+            "शीर्ष मेनू से 'माइक्रो-लेन या स्थान का नाम खोजें' चुनें, फिर अपने"
+            " सड़क का नाम टाइप करें (जैसे: नबीन मुखर्जी लेन) या वॉयस सर्च का उपयोग"
+            " करें।"
+        ),
+        "faq_q2": "AQI मानक का क्या अर्थ है?",
+        "faq_a2": (
+            "ऐप आपके स्थान के निर्देशांक के आधार पर स्थानीय क्षेत्रों के लिए"
+            " CPCB (भारत) और वैश्विक WHO मानकों के बीच स्वचालित रूप से स्विच"
+            " करता है।"
+        ),
+        "faq_q3": "आगंतुक की संख्या कैसे ट्रैक की जाती है?",
+        "faq_a3": (
+            "कैंपस पोर्टल पर अद्वितीय सत्र मुलाकातों को रिकॉर्ड करने के लिए"
+            " क्लाउड पर आगंतुक आँकड़े सुरक्षित रूप से ट्रैक किए जाते हैं।"
+        ),
         "export_title": "📥 मौसम और वायु गुणवत्ता रिपोर्ट निर्यात करें",
         "csv_btn": "📥 CSV रिपोर्ट डाउनलोड करें",
         "txt_btn": "📄 सारांश रिपोर्ट डाउनलोड करें",
@@ -502,7 +556,7 @@ logo_html_src = (
 )
 
 
-# Cloud-Backed Dynamic Visitor Counter (Method 2)
+# Cloud-Backed Dynamic Visitor Counter
 @st.cache_data(ttl=60)
 def get_cloud_visitor_count():
   try:
@@ -514,7 +568,7 @@ def get_cloud_visitor_count():
       return response.json().get("value", 1452)
   except Exception:
     pass
-  return 1452  # Fallback base count if offline
+  return 1452
 
 
 def get_weather_display(code):
@@ -745,6 +799,26 @@ else:
   lang_code = "en"
 
 T = TEXTS[lang_code]
+
+# --- SIDEBAR: FAQ & HELP GUIDE ---
+with st.sidebar:
+  st.markdown(f"## {T['faq_sidebar_title']}")
+  st.markdown("---")
+
+  with st.expander(f"❓ {T['faq_q1']}"):
+    st.markdown(T["faq_a1"])
+
+  with st.expander(f"❓ {T['faq_q2']}"):
+    st.markdown(T["faq_a2"])
+
+  with st.expander(f"❓ {T['faq_q3']}"):
+    st.markdown(T["faq_a3"])
+
+  st.markdown("---")
+  st.markdown(
+      "**📌 Quick Tip:** Use the language selector at the top right to view"
+      " the entire portal and guides in English, Bengali, or Hindi."
+  )
 
 # --- HEADER CONTAINER WITH BASE64 LOGO & IST TIME ---
 col_head1, col_head2 = st.columns([4, 1])
@@ -1236,7 +1310,6 @@ if data and "current_weather" in data:
 
     with col_analytics_right:
       st.markdown(f"### {T['hist_trend_title']}")
-      # Add an invisible markdown spacer matching the height of the multiselect widget on the left
       st.markdown(
           "<div style='height: 54px; margin-bottom: 6px;'></div>",
           unsafe_allow_html=True,
