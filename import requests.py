@@ -502,6 +502,21 @@ logo_html_src = (
 )
 
 
+# Cloud-Backed Dynamic Visitor Counter (Method 2)
+@st.cache_data(ttl=60)
+def get_cloud_visitor_count():
+  try:
+    response = requests.get(
+        "https://api.countapi.xyz/hit/prabhu_jagatbandhu_weather/visits",
+        timeout=3,
+    )
+    if response.status_code == 200:
+      return response.json().get("value", 1452)
+  except Exception:
+    pass
+  return 1452  # Fallback base count if offline
+
+
 def get_weather_display(code):
   if code == 0:
     return "☀️", "Sunny"
@@ -1107,3 +1122,299 @@ if data and "current_weather" in data:
             unsafe_allow_html=True,
         )
       with col_hist2:
+        st.markdown(
+            f"""
+                <div class="weather-card" style="text-align: left; padding: 12px 14px;">
+                    <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">{T['min_temp']}</div>
+                    <div style="font-size: 1.2rem; font-weight: bold; color: {text_color};">{T['today']}: {today_min}°C</div>
+                    <div style="font-size: 0.85rem; color: #38bdf8; margin-top: 2px;">Last Year: {ly_min}°C</div>
+                </div>
+                """,
+            unsafe_allow_html=True,
+        )
+      with col_hist3:
+        st.markdown(
+            f"""
+                <div class="weather-card" style="text-align: left; padding: 12px 14px;">
+                    <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">{T['precip_sum']}</div>
+                    <div style="font-size: 1.2rem; font-weight: bold; color: {text_color};">{T['today']}: {today_rain} mm</div>
+                    <div style="font-size: 0.85rem; color: #38bdf8; margin-top: 2px;">Last Year: {ly_rain} mm</div>
+                </div>
+                """,
+            unsafe_allow_html=True,
+        )
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # --- SMART COMMUTER & OUTDOOR ADVISORY GENERATOR ---
+    st.markdown(f"### {T['commuter_title']}")
+    advisories = []
+    current_precip = current.get("precipitation", 0)
+    hourly_precip_sum = (
+        sum(hourly.get("precipitation", [])[:3]) if hourly else 0
+    )
+    if current_precip > 0.2 or hourly_precip_sum > 1.0:
+      advisories.append(T["commuter_umbrella"])
+
+    if aqi_data and "current" in aqi_data:
+      current_pm25 = aqi_data["current"].get("pm2_5", 0)
+      if current_pm25 > 60:
+        advisories.append(T["commuter_mask"])
+
+    current_temp = current.get("temperature", 25)
+    if current_temp >= 33:
+      advisories.append(T["commuter_heat"])
+
+    hourly_gusts = hourly.get("windgusts_10m", [0])[:3]
+    max_gust = max(hourly_gusts) if hourly_gusts else 0
+    if max_gust >= 35.0:
+      advisories.append(T["commuter_wind"])
+
+    if advisories:
+      for adv in advisories:
+        st.markdown(
+            f"""
+                <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); color: {text_color}; padding: 12px 16px; border-radius: 8px; margin-bottom: 8px; font-size: 0.9rem;">
+                    {adv}
+                </div>
+                """,
+            unsafe_allow_html=True,
+        )
+    else:
+      st.markdown(
+          f"""
+            <div style="background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.3); color: {text_color}; padding: 12px 16px; border-radius: 8px; font-size: 0.9rem;">
+                {T['commuter_safe']}
+            </div>
+            """,
+          unsafe_allow_html=True,
+      )
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # --- SIDE-BY-SIDE ANALYTICS ROW WITH EQUAL CHART HEIGHTS ---
+    col_analytics_left, col_analytics_right = st.columns(2)
+
+    with col_analytics_left:
+      st.markdown(f"### {T['multi_plot_title']}")
+      if hourly and "time" in hourly:
+        h_times = [
+            datetime.fromisoformat(t).strftime("%m-%d %H:%M")
+            for t in hourly["time"][:24]
+        ]
+        h_temps = hourly["temperature_2m"][:24]
+        h_humidity = hourly["relativehumidity_2m"][:24]
+        h_precip = hourly["precipitation"][:24]
+        h_gusts = hourly["windgusts_10m"][:24]
+
+        df_hourly_multi = pd.DataFrame(
+            {
+                "Time": h_times,
+                "Temperature (°C)": h_temps,
+                "Humidity (%)": h_humidity,
+                "Precipitation (mm)": h_precip,
+                "Wind Gusts (km/h)": h_gusts,
+            }
+        ).set_index("Time")
+
+        selected_params = st.multiselect(
+            T["multi_plot_select"],
+            [
+                "Temperature (°C)",
+                "Humidity (%)",
+                "Precipitation (mm)",
+                "Wind Gusts (km/h)",
+            ],
+            default=["Temperature (°C)", "Humidity (%)"],
+            key="multi_param_select_key",
+        )
+
+        if selected_params:
+          st.line_chart(df_hourly_multi[selected_params], height=350)
+        else:
+          st.info("Please select at least one parameter above.")
+
+    with col_analytics_right:
+      st.markdown(f"### {T['hist_trend_title']}")
+      # Add an invisible markdown spacer matching the height of the multiselect widget on the left
+      st.markdown(
+          "<div style='height: 54px; margin-bottom: 6px;'></div>",
+          unsafe_allow_html=True,
+      )
+
+      try:
+        current_start_date = datetime.strptime(daily["time"][0], "%Y-%m-%d")
+        current_end_date = datetime.strptime(daily["time"][-1], "%Y-%m-%d")
+
+        ly_start_date = current_start_date - pd.DateOffset(years=1)
+        ly_end_date = current_end_date - pd.DateOffset(years=1)
+
+        ly_week_data = fetch_historical_week_archive(
+            lat,
+            lon,
+            ly_start_date.strftime("%Y-%m-%d"),
+            ly_end_date.strftime("%Y-%m-%d"),
+        )
+
+        if ly_week_data and "daily" in ly_week_data:
+          ly_daily = ly_week_data["daily"]
+          df_hist_trend = pd.DataFrame(
+              {
+                  "Day": [f"Day {i+1}" for i in range(7)],
+                  "This Week Max Temp (°C)": daily["temperature_2m_max"][:7],
+                  "Last Year Max Temp (°C)": ly_daily.get(
+                      "temperature_2m_max", [0] * 7
+                  )[:7],
+              }
+          ).set_index("Day")
+          st.line_chart(df_hist_trend, height=350)
+        else:
+          st.info("Historical week trend data unavailable.")
+      except Exception:
+        st.info("Could not load historical week comparison chart.")
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # --- TRILINGUAL EDUCATIONAL GLOSSARY WIDGET ---
+    with st.expander(f"📖 **{T['glossary_title']}**", expanded=False):
+      selected_term = st.selectbox(
+          T["glossary_select"], list(T["glossary_terms"].keys())
+      )
+      term_definition = T["glossary_terms"][selected_term]
+      st.markdown(
+          f"""
+            <div style="background: {card_bg}; border: {card_border}; padding: 14px 16px; border-radius: 8px; margin-top: 8px;">
+                <p style="color: {text_color}; font-size: 0.95rem; margin: 0; line-height: 1.6;">
+                    <b>{selected_term}:</b> {term_definition}
+                </p>
+            </div>
+            """,
+          unsafe_allow_html=True,
+      )
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # --- TRILINGUAL CLIMATE RESEARCH REFERENCES ---
+    with st.expander(f"📖 **{T['references_title']}**", expanded=False):
+      st.markdown(
+          f"""
+            <div style="background: {card_bg}; border: {card_border}; padding: 16px; border-radius: 8px; margin-top: 8px; font-size: 0.9rem; line-height: 1.6; color: {text_color};">
+                <p><b>1. Open-Meteo Global Reanalysis & Forecast API</b></p>
+                <ul>
+                    <li><b>Provider:</b> Open-Meteo.com (Open-Data Sponsorship via AWS Cloud-Optimized Datasets).</li>
+                    <li><b>Core Models:</b> ECMWF ERA5 Reanalysis, NOAA GFS, ICON (DWD), Météo-France, and UK Met Office.</li>
+                    <li><b>Citation:</b> Zippenfenig, P. (2023). <i>Open-Meteo.com Weather API</i> [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.7970649</li>
+                </ul>
+                <p><b>2. India Meteorological Department (IMD) High-Resolution Gridded Datasets</b></p>
+                <ul>
+                    <li><b>Daily Gridded Rainfall (0.25° × 0.25°):</b> Pai, D. S., et al. (2014). Development of a new high spatial resolution long period daily gridded rainfall data set over India. <i>Mausam</i>, 65(1), 1–18.</li>
+                    <li><b>Daily Gridded Temperature:</b> Srivastava, A. K., et al. (2009). Development of a high resolution daily gridded temperature data set for the Indian region. <i>Atmospheric Science Letters</i>, 10(4), 249–254.</li>
+                </ul>
+                <p><b>3. INSAT-3D / INSAT-3DR Geostationary Satellite Network</b></p>
+                <ul>
+                    <li><b>Data Provider:</b> India Meteorological Department (IMD) & ISRO Space Applications Centre (SAC).</li>
+                    <li><b>Citation:</b> Kakar, R. K., et al. (2015). Meteorological payload and operational capabilities of INSAT-3D satellite system. <i>Current Science</i>, 108(4), 512–522.</li>
+                </ul>
+                <p><b>4. CPCB National Ambient Air Quality Standards (NAAQS - India)</b></p>
+                <ul>
+                    <li><b>Regulating Body:</b> Central Pollution Control Board (CPCB), Ministry of Environment, Forest and Climate Change, Government of India.</li>
+                </ul>
+            </div>
+            """,
+          unsafe_allow_html=True,
+      )
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # --- TREND & MAP ---
+    bottom_col_left, bottom_col_right = st.columns(2)
+    with bottom_col_left:
+      st.markdown(f"### {T['trend_title']}")
+      df_daily = pd.DataFrame({
+          "Date": [
+              datetime.strptime(d, "%Y-%m-%d").strftime("%a (%m/%d)")
+              for d in daily["time"][:7]
+          ],
+          "Max Temp (°C)": daily["temperature_2m_max"][:7],
+          "Min Temp (°C)": daily["temperature_2m_min"][:7],
+      }).set_index("Date")
+      st.line_chart(df_daily, height=300)
+
+    with bottom_col_right:
+      st.markdown(f"### {T['map_title']}")
+      df_map = pd.DataFrame({"lat": [lat], "lon": [lon]})
+      st.map(df_map, zoom=14, height=300)
+
+  st.markdown("<br>", unsafe_allow_html=True)
+
+  # --- EXPORT METEOROLOGICAL & AIR QUALITY REPORT ---
+  st.markdown(f"### {T['export_title']}")
+  export_df = pd.DataFrame({
+      "Timestamp (IST)": [datetime.now(IST).strftime("%Y-%m-%d %H:%M")],
+      "Location": [location_title],
+      "Latitude": [lat],
+      "Longitude": [lon],
+      "Current Temp (°C)": [current.get("temperature", "N/A")],
+      "Weather Code": [current.get("weathercode", "N/A")],
+      "PM2.5 (µg/m³)": [
+          aqi_data["current"].get("pm2_5", "N/A") if aqi_data else "N/A"
+      ],
+      "AQI Status": [status_label if aqi_data else "N/A"],
+  })
+
+  col_exp1, col_exp2 = st.columns(2)
+  with col_exp1:
+    csv_buffer = export_df.to_csv(index=False).encode("utf-8")
+    st.download_button(
+        label=T["csv_btn"],
+        data=csv_buffer,
+        file_name=(
+            f"campus_weather_report_{datetime.now(IST).strftime('%Y-%m-%d')}.csv"
+        ),
+        mime="text/csv",
+    )
+
+  with col_exp2:
+    txt_summary = f"""
+    PRABHU JAGATBANDHU COLLEGE - CAMPUS METEOROLOGICAL REPORT
+    Date: {datetime.now(IST).strftime('%Y-%m-%d %H:%M:%S')} IST
+    Location: {location_title}
+    Coordinates: {lat:.5f}° N, {lon:.5f}° E
+    
+    CURRENT METRICS:
+    - Temperature: {current.get('temperature', 'N/A')}°C
+    - Air Quality (PM2.5): {aqi_data['current'].get('pm2_5', 'N/A') if aqi_data else 'N/A'} µg/m³
+    - Status: {status_label if aqi_data else 'N/A'}
+    
+    Advisory: {advisory if aqi_data else 'Normal conditions active.'}
+    """
+    st.download_button(
+        label=T["txt_btn"],
+        data=txt_summary.encode("utf-8"),
+        file_name=(
+            f"campus_weather_summary_{datetime.now(IST).strftime('%Y-%m-%d')}.txt"
+        ),
+        mime="text/plain",
+    )
+
+else:
+  st.error("Failed to retrieve weather information.")
+
+# --- FOOTER WITH DYNAMIC CLOUD VISITOR COUNT ---
+st.markdown("<br><hr>", unsafe_allow_html=True)
+visitor_count = get_cloud_visitor_count()
+
+st.markdown(
+    f"""
+    <div style="text-align: center; margin-top: 20px;">
+        <p style="color: {sub_text}; font-size: 0.9rem; margin-bottom: 12px;">
+            {T['footer_text']}
+        </p>
+        <div style="display: inline-flex; border-radius: 4px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.2); font-family: monospace; font-size: 0.85rem; font-weight: bold;">
+            <div style="background-color: #555555; color: #ffffff; padding: 6px 12px; letter-spacing: 1px;">{T['visitors']}</div>
+            <div style="background-color: #3b82f6; color: #ffffff; padding: 6px 12px; letter-spacing: 1px;">{visitor_count}</div>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
