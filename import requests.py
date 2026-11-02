@@ -53,7 +53,7 @@ TEXTS = {
             "🟢 **No severe weather alerts.** Normal outdoor conditions active."
         ),
         "alerts_title": "🚨 Weather Alerts",
-        "sat_title": "🛰️ REAL-TIME IMD SATELLITE IMAGERY (INSAT-3D / INSAT-3DR)",
+        "sat_title": "🛰️ REAL-TIME SATELLITE & RADAR IMAGERY (INSAT-3D / RAINVIEWER)",
         "sat_channel_label": "Select Satellite Channel / Product:",
         "sat_ir": "Infrared Channel 1 (IR1 - Cloud Top Temperature)",
         "sat_vis": "Visible Spectrum (VIS - Daytime Clouds)",
@@ -115,7 +115,7 @@ TEXTS = {
         ),
         "alerts_title": "🚨 আবহাওয়া সতর্কতা",
         "sat_title": (
-            "🛰️ রিয়েল-টাইম আইএমডি স্যাটেলাইট ইমেজারি (ইনস্যাট-৩ডি / ইনস্যাট-৩ডিআর)"
+            "🛰️ রিয়েল-টাইম স্যাটেলাইট ও রাডার চিত্র (ইনস্যাট-৩ডি / রেইনভিউয়ার)"
         ),
         "sat_channel_label": "স্যাটেলাইট চ্যানেল বা প্রোডাক্ট নির্বাচন করুন:",
         "sat_ir": "ইনফ্রারেড চ্যানেল ১ (IR1 - মেঘের শীর্ষ তাপমাত্রা)",
@@ -611,36 +611,36 @@ if data and "current_weather" in data:
         ],
     )
 
-    if sat_option == T["sat_ir"]:
-      st.image(
-          "https://mausam.imd.gov.in/satellite/3DMSG_satimg/INSAT-3D-IR-1.jpg",
-          caption=(
-              "IMD INSAT-3D Infrared (IR1) - Real-Time Cloud Top Temperature"
-              " Map"
-          ),
-          use_container_width=True,
-      )
-    elif sat_option == T["sat_vis"]:
-      st.image(
-          "https://mausam.imd.gov.in/satellite/3DMSG_satimg/INSAT-3D-VIS.jpg",
-          caption="IMD INSAT-3D Visible (VIS) Channel - Daytime Cloud Albedo",
-          use_container_width=True,
-      )
-    elif sat_option == T["sat_wv"]:
-      st.image(
-          "https://mausam.imd.gov.in/satellite/3DMSG_satimg/INSAT-3D-WV.jpg",
-          caption=(
-              "IMD INSAT-3D Water Vapour (WV) Channel - Tropospheric Moisture"
-          ),
-          use_container_width=True,
-      )
+    sat_urls = {
+        T["sat_ir"]: "https://sathead.satnet.imd.gov.in/INSAT-3D/IR1.jpg",
+        T["sat_vis"]: "https://sathead.satnet.imd.gov.in/INSAT-3D/VIS.jpg",
+        T["sat_wv"]: "https://sathead.satnet.imd.gov.in/INSAT-3D/WV.jpg",
+    }
+
+    if sat_option in sat_urls:
+      target_url = sat_urls[sat_option]
+      try:
+        st.image(
+            target_url,
+            caption=f"INSAT-3D Real-Time Stream ({sat_option})",
+            use_container_width=True,
+        )
+      except Exception:
+        st.warning(
+            "⚠️ Direct image stream momentarily updating. Click below to view"
+            " live:"
+        )
+        st.markdown(
+            f"[🔗 Open Direct INSAT-3D {sat_option} Image Feed]({target_url})"
+        )
+
     elif sat_option == T["sat_radar"]:
-      # Embeds open live precipitation & cloud radar centered on target coordinates
       components.iframe(
           f"https://www.rainviewer.com/map.html?loc={lat},{lon},9&ofr=0&t=1&col=1&c=1&o=90&s=1&v=0&sm=1&sn=1",
           height=500,
           scrolling=False,
       )
+
     else:
       st.info(
           "🔒 Official IMD Portal restricts direct frame embedding. Click"
