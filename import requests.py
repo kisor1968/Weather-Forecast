@@ -77,6 +77,27 @@ TEXTS = {
         "hourly_title": "⏱️ UPCOMING HOURLY FORECAST CARDS",
         "outlook_title": "📅 7-DAY OUTLOOK",
         "history_title": "📜 Historical Climate Archive (Same Date Last Year)",
+        "commuter_title": "🚗 Smart Commuter & Outdoor Advisory",
+        "commuter_umbrella": (
+            "🌧️ **Rain Gear Recommended:** Precipitation or showers detected along"
+            " your route. Carry an umbrella or raincoat."
+        ),
+        "commuter_mask": (
+            "😷 **Air Quality Notice:** Elevated particulate levels (PM2.5) detected."
+            " Sensitive groups should consider wearing a mask."
+        ),
+        "commuter_heat": (
+            "☀️ **High Temperature Advisory:** Warm outdoor conditions. Stay"
+            " hydrated and wear light clothing."
+        ),
+        "commuter_wind": (
+            "💨 **Wind Caution:** Strong gusts active. Exercise caution if"
+            " traveling by two-wheeler."
+        ),
+        "commuter_safe": (
+            "🟢 **All Clear for Travel:** Favorable weather and air quality"
+            " conditions for outdoor commute."
+        ),
         "export_title": "📥 Export Meteorological & Air Quality Report",
         "csv_btn": "📥 Download CSV Report",
         "txt_btn": "📄 Download Text Summary",
@@ -150,6 +171,27 @@ TEXTS = {
         "history_title": (
             "📜 ঐতিহাসিক জলবায়ু সংরক্ষণাগার (গত বছরের ঠিক এই দিনের ডেটা)"
         ),
+        "commuter_title": "🚗 স্মার্ট যাতায়াত ও ভ্রমণ পরামর্শ",
+        "commuter_umbrella": (
+            "🌧️ **ছাতা সাথে রাখুন:** আপনার রুট বা এলাকায় বৃষ্টিপাতের সম্ভাবনা রয়েছে।"
+            " ছাতা বা রেইনকোট সাথে রাখুন।"
+        ),
+        "commuter_mask": (
+            "😷 **বায়ুর গুণমান সতর্কতা:** বাতাসে দূষণ (PM2.5) কিছুটা বেশি। সংবেদনশীল"
+            " ব্যক্তিরা মাস্ক ব্যবহার করুন।"
+        ),
+        "commuter_heat": (
+            "☀️ **উষ্ণ আবহাওয়া সতর্কতা:** তাপমাত্রা বেশি রয়েছে। পর্যাপ্ত জল পান করুন"
+            " এবং হালকা পোশাক পরুন।"
+        ),
+        "commuter_wind": (
+            "💨 **বায়ুপ্রবাহ সতর্কতা:** জোরালো বাতাস বইছে। দুই চাকার বাহনে চলাচলের সময়"
+            " সতর্ক থাকুন।"
+        ),
+        "commuter_safe": (
+            "🟢 **ভ্রমণের জন্য অনুকূল পরিবেশ:** আবহাওয়া এবং বায়ুর গুণমান উভয়ই স্বাভাবিক"
+            " এবং নিরাপদ রয়েছে।"
+        ),
         "export_title": "📥 আবহাওয়া ও বায়ুর গুণমান প্রতিবেদন রপ্তানি করুন",
         "csv_btn": "📥 সিএসভি প্রতিবেদন ডাউনলোড করুন",
         "txt_btn": "📄 সারসংক্ষেপ ডাউনলোড করুন",
@@ -218,6 +260,27 @@ TEXTS = {
         "outlook_title": "📅 7-दिवसीय पूर्वानुमान",
         "history_title": (
             "📜 ऐतिहासिक जलवायु पुरालेख (पिछले वर्ष की इसी तिथि का डेटा)"
+        ),
+        "commuter_title": "🚗 स्मार्ट कम्यूटर और यात्रा सलाह",
+        "commuter_umbrella": (
+            "🌧️ **छतरी साथ रखें:** आपके क्षेत्र में वर्षा या बौछारें संभावित हैं। छाता"
+            " या रेनकोट साथ रखें।"
+        ),
+        "commuter_mask": (
+            "😷 **वायु गुणवत्ता सूचना:** प्रदूषण स्तर (PM2.5) अधिक है। संवेदनशील लोग"
+            " मास्क का उपयोग करें।"
+        ),
+        "commuter_heat": (
+            "☀️ **उच्च तापमान सलाह:** गर्म मौसम है। पर्याप्त पानी पिएं और हल्के कपड़े"
+            " पहनें।"
+        ),
+        "commuter_wind": (
+            "💨 **तेज़ हवा चेतावनी:** तेज़ हवाएं चल रही हैं। दोपहिया वाहन से यात्रा"
+            " करते समय सावधानी बरतें।"
+        ),
+        "commuter_safe": (
+            "🟢 **यात्रा के लिए बिल्कुल अनुकूल:** मौसम और वायु गुणवत्ता दोनों बाहरी"
+            " गतिविधियों के लिए सुरक्षित हैं।"
         ),
         "export_title": "📥 मौसम और वायु गुणवत्ता रिपोर्ट निर्यात करें",
         "csv_btn": "📥 CSV रिपोर्ट डाउनलोड करें",
@@ -757,297 +820,4 @@ if data and "current_weather" in data:
     st.markdown(f"### {T['aqi_title']} ({std_name})")
     aq_current = aqi_data["current"]
 
-    pm25 = aq_current.get("pm2_5", 0)
-    pm10 = aq_current.get("pm10", 0)
-    no2 = aq_current.get("nitrogen_dioxide", 0)
-    o3 = aq_current.get("ozone", 0)
-
-    std_limits = {
-        "pm25": 60 if is_india_location else 15,
-        "pm10": 100 if is_india_location else 45,
-        "no2": 80 if is_india_location else 25,
-        "o3": 100,
-    }
-
-    status_label, status_color, advisory = interpret_aqi(
-        pm25, is_india=is_india_location
-    )
-    col_aqi1, col_aqi2, col_aqi3, col_aqi4, col_aqi5 = st.columns(5)
-
-    with col_aqi1:
-      st.markdown(
-          f"""
-            <div class="weather-card" style="border-left: 4px solid {status_color}; text-align: left; padding: 10px 12px;">
-                <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">{T['overall_status']}</div>
-                <div style="font-size: 1.1rem; font-weight: bold; color: {status_color};">{status_label}</div>
-            </div>
-            """,
-          unsafe_allow_html=True,
-      )
-
-    def render_pollutant_card(name, val, limit):
-      ratio = (val / limit) * 100 if limit > 0 else 0
-      if val <= limit:
-        badge_color = "#22c55e"
-        badge_text = T["safe_limit"]
-      else:
-        badge_color = "#ef4444"
-        badge_text = f"+{ratio - 100:.0f}% Above Standard"
-
-      return f"""
-        <div class="weather-card">
-            <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">{name}</div>
-            <div style="font-size: 1.1rem; font-weight: bold; color: {text_color};">{val} <span style="font-size: 0.75rem; font-weight: normal;">µg/m³</span></div>
-            <div style="font-size: 0.7rem; color: {sub_text}; margin-top: 2px;">{T['standard_limit']}: <b>{limit} µg/m³</b></div>
-            <div style="font-size: 0.7rem; color: {badge_color}; font-weight: bold; margin-top: 4px;">{badge_text}</div>
-        </div>
-        """
-
-    with col_aqi2:
-      st.markdown(
-          render_pollutant_card("PM₂.₅", pm25, std_limits["pm25"]),
-          unsafe_allow_html=True,
-      )
-    with col_aqi3:
-      st.markdown(
-          render_pollutant_card("PM₁₀", pm10, std_limits["pm10"]),
-          unsafe_allow_html=True,
-      )
-    with col_aqi4:
-      st.markdown(
-          render_pollutant_card("NO₂", no2, std_limits["no2"]),
-          unsafe_allow_html=True,
-      )
-    with col_aqi5:
-      st.markdown(
-          render_pollutant_card("O₃", o3, std_limits["o3"]),
-          unsafe_allow_html=True,
-      )
-
-    st.markdown(
-        f"""
-        <div style="background: {card_bg}; border: {card_border}; color: {text_color}; padding: 10px 14px; border-radius: 10px; margin-top: 10px; font-size: 0.85rem;">
-            💡 <b>Health Advisory:</b> {advisory}
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-  st.markdown("<br>", unsafe_allow_html=True)
-
-  # --- HOURLY FORECAST CARDS ---
-  if hourly:
-    st.markdown(f"### {T['hourly_title']}")
-    current_hour_iso = datetime.now(IST).strftime("%Y-%m-%dT%H:00")
-    try:
-      start_idx = hourly["time"].index(current_hour_iso)
-    except ValueError:
-      start_idx = 0
-
-    hours_cols = st.columns(8)
-    for col_idx, i in enumerate(range(start_idx, start_idx + 8)):
-      if i < len(hourly["time"]):
-        time_val = hourly["time"][i]
-        dt_obj = datetime.fromisoformat(time_val)
-        time_formatted = dt_obj.strftime("%I:%M %p")
-
-        temp_val = hourly["temperature_2m"][i]
-        humidity_val = hourly["relativehumidity_2m"][i]
-        w_code = hourly["weathercode"][i]
-        icon, _ = get_weather_display(w_code)
-
-        with hours_cols[col_idx]:
-          st.markdown(
-              f"""
-                    <div class="weather-card">
-                        <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">{time_formatted}</div>
-                        <div style="font-size: 1.5rem; margin: 5px 0;">{icon}</div>
-                        <div style="font-size: 1.1rem; font-weight: bold; color: {text_color};">{temp_val}°C</div>
-                        <div style="font-size: 0.75rem; color: #38bdf8; margin-top: 4px;">💧 {humidity_val}%</div>
-                    </div>
-                    """,
-              unsafe_allow_html=True,
-          )
-
-  st.markdown("<br>", unsafe_allow_html=True)
-
-  # --- 7-DAY OUTLOOK CARDS ---
-  if daily:
-    st.markdown(f"### {T['outlook_title']}")
-    day_cols = st.columns(7)
-
-    for i in range(7):
-      date_str = daily["time"][i]
-      dt_day = datetime.strptime(date_str, "%Y-%m-%d")
-      day_name = T["today"] if i == 0 else dt_day.strftime("%a")
-      date_short = dt_day.strftime("%m/%d")
-
-      max_t = daily["temperature_2m_max"][i]
-      min_t = daily["temperature_2m_min"][i]
-      rain_sum = daily["precipitation_sum"][i]
-      w_code = daily["weathercode"][i]
-      icon, _ = get_weather_display(w_code)
-
-      with day_cols[i]:
-        st.markdown(
-            f"""
-                <div class="weather-card" style="padding: 12px 4px;">
-                    <div style="font-weight: bold; font-size: 0.9rem; color: {text_color};">{day_name}</div>
-                    <div style="font-size: 0.7rem; color: {sub_text}; margin-bottom: 6px;">{date_short}</div>
-                    <div style="font-size: 1.8rem; margin: 6px 0;">{icon}</div>
-                    <div style="font-size: 0.95rem; font-weight: bold; color: {text_color};">{max_t}° <span style="font-weight: normal; color: {sub_text}; font-size: 0.85rem;">{min_t}°</span></div>
-                    <div style="font-size: 0.75rem; color: #38bdf8; margin-top: 6px;">💧 {rain_sum}mm</div>
-                </div>
-                """,
-            unsafe_allow_html=True,
-        )
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    # --- HISTORICAL CLIMATE ARCHIVE ---
-    st.markdown(f"### {T['history_title']}")
-    last_year_date = datetime.now(IST) - pd.DateOffset(years=1)
-    ly_date_str = last_year_date.strftime("%Y-%m-%d")
-
-    archive_data = fetch_historical_archive(lat, lon, ly_date_str)
-
-    if archive_data and "daily" in archive_data:
-      ly_daily = archive_data["daily"]
-      ly_max = ly_daily.get("temperature_2m_max", [None])[0]
-      ly_min = ly_daily.get("temperature_2m_min", [None])[0]
-      ly_rain = ly_daily.get("precipitation_sum", [None])[0]
-
-      today_max = daily["temperature_2m_max"][0]
-      today_min = daily["temperature_2m_min"][0]
-      today_rain = daily["precipitation_sum"][0]
-
-      col_hist1, col_hist2, col_hist3 = st.columns(3)
-      with col_hist1:
-        st.markdown(
-            f"""
-                <div class="weather-card" style="text-align: left; padding: 12px 14px;">
-                    <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">{T['max_temp']}</div>
-                    <div style="font-size: 1.2rem; font-weight: bold; color: {text_color};">{T['today']}: {today_max}°C</div>
-                    <div style="font-size: 0.85rem; color: #38bdf8; margin-top: 2px;">Last Year: {ly_max}°C</div>
-                </div>
-                """,
-            unsafe_allow_html=True,
-        )
-      with col_hist2:
-        st.markdown(
-            f"""
-                <div class="weather-card" style="text-align: left; padding: 12px 14px;">
-                    <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">{T['min_temp']}</div>
-                    <div style="font-size: 1.2rem; font-weight: bold; color: {text_color};">{T['today']}: {today_min}°C</div>
-                    <div style="font-size: 0.85rem; color: #38bdf8; margin-top: 2px;">Last Year: {ly_min}°C</div>
-                </div>
-                """,
-            unsafe_allow_html=True,
-        )
-      with col_hist3:
-        st.markdown(
-            f"""
-                <div class="weather-card" style="text-align: left; padding: 12px 14px;">
-                    <div style="font-size: 0.75rem; color: {sub_text}; font-weight: 600;">{T['precip_sum']}</div>
-                    <div style="font-size: 1.2rem; font-weight: bold; color: {text_color};">{T['today']}: {today_rain} mm</div>
-                    <div style="font-size: 0.85rem; color: #38bdf8; margin-top: 2px;">Last Year: {ly_rain} mm</div>
-                </div>
-                """,
-            unsafe_allow_html=True,
-        )
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    # --- TREND & MAP ---
-    bottom_col_left, bottom_col_right = st.columns(2)
-    with bottom_col_left:
-      st.markdown(f"### {T['trend_title']}")
-      df_daily = pd.DataFrame({
-          "Date": [
-              datetime.strptime(d, "%Y-%m-%d").strftime("%a (%m/%d)")
-              for d in daily["time"][:7]
-          ],
-          "Max Temp (°C)": daily["temperature_2m_max"][:7],
-          "Min Temp (°C)": daily["temperature_2m_min"][:7],
-      }).set_index("Date")
-      st.line_chart(df_daily, height=300)
-
-    with bottom_col_right:
-      st.markdown(f"### {T['map_title']}")
-      df_map = pd.DataFrame({"lat": [lat], "lon": [lon]})
-      st.map(df_map, zoom=14, height=300)
-
-  st.markdown("<br>", unsafe_allow_html=True)
-
-  # --- EXPORT METEOROLOGICAL & AIR QUALITY REPORT ---
-  st.markdown(f"### {T['export_title']}")
-  export_df = pd.DataFrame({
-      "Timestamp (IST)": [datetime.now(IST).strftime("%Y-%m-%d %H:%M")],
-      "Location": [location_title],
-      "Latitude": [lat],
-      "Longitude": [lon],
-      "Current Temp (°C)": [current.get("temperature", "N/A")],
-      "Weather Code": [current.get("weathercode", "N/A")],
-      "PM2.5 (µg/m³)": [
-          aqi_data["current"].get("pm2_5", "N/A") if aqi_data else "N/A"
-      ],
-      "AQI Status": [status_label if aqi_data else "N/A"],
-  })
-
-  col_exp1, col_exp2 = st.columns(2)
-  with col_exp1:
-    csv_buffer = export_df.to_csv(index=False).encode("utf-8")
-    st.download_button(
-        label=T["csv_btn"],
-        data=csv_buffer,
-        file_name=(
-            f"campus_weather_report_{datetime.now(IST).strftime('%Y-%m-%d')}.csv"
-        ),
-        mime="text/csv",
-    )
-
-  with col_exp2:
-    txt_summary = f"""
-    PRABHU JAGATBANDHU COLLEGE - CAMPUS METEOROLOGICAL REPORT
-    Date: {datetime.now(IST).strftime('%Y-%m-%d %H:%M:%S')} IST
-    Location: {location_title}
-    Coordinates: {lat:.5f}° N, {lon:.5f}° E
-    
-    CURRENT METRICS:
-    - Temperature: {current.get('temperature', 'N/A')}°C
-    - Air Quality (PM2.5): {aqi_data['current'].get('pm2_5', 'N/A') if aqi_data else 'N/A'} µg/m³
-    - Status: {status_label if aqi_data else 'N/A'}
-    
-    Advisory: {advisory if aqi_data else 'Normal conditions active.'}
-    """
-    st.download_button(
-        label=T["txt_btn"],
-        data=txt_summary.encode("utf-8"),
-        file_name=(
-            f"campus_weather_summary_{datetime.now(IST).strftime('%Y-%m-%d')}.txt"
-        ),
-        mime="text/plain",
-    )
-
-else:
-  st.error("Failed to retrieve weather information.")
-
-# --- FOOTER ---
-st.markdown("<br><hr>", unsafe_allow_html=True)
-if "visitor_count" not in st.session_state:
-  st.session_state["visitor_count"] = 1452
-
-st.markdown(
-    f"""
-    <div style="text-align: center; margin-top: 20px;">
-        <p style="color: {sub_text}; font-size: 0.9rem; margin-bottom: 12px;">
-            {T['footer_text']}
-        </p>
-        <div style="display: inline-flex; border-radius: 4px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.2); font-family: monospace; font-size: 0.85rem; font-weight: bold;">
-            <div style="background-color: #555555; color: #ffffff; padding: 6px 12px; letter-spacing: 1px;">{T['visitors']}</div>
-            <div style="background-color: #3b82f6; color: #ffffff; padding: 6px 12px; letter-spacing: 1px;">{st.session_state['visitor_count']} / 10</div>
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
+    pm25 = aq_current.get("pm2
