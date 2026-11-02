@@ -3,6 +3,7 @@ import base64
 import pandas as pd
 import requests
 import streamlit as st
+import streamlit.components.v1 as components
 
 # Optional Speech-to-Text Import for Voice Search
 try:
@@ -14,7 +15,7 @@ except ImportError:
 
 # Page Configuration
 st.set_page_config(
-    page_title="Weather Portal / আবহাওয়া পোর্টাল",
+    page_title="Campus Weather Portal / ক্যাম্পাস আবহাওয়া পোর্টাল",
     page_icon="🌤️",
     layout="wide",
 )
@@ -23,7 +24,7 @@ st.set_page_config(
 TEXTS = {
     "en": {
         "college_name": "Prabhu Jagatbandhu College",
-        "college_sub": "Meteorological Portal • Howrah",
+        "college_sub": "Campus Meteorological Portal • Howrah",
         "select_mode": "Select Location Input Mode:",
         "mode_preset": "College Campus Preset",
         "mode_search": "Search Micro-Lane or Location Name",
@@ -52,6 +53,16 @@ TEXTS = {
             "🟢 **No severe weather alerts.** Normal outdoor conditions active."
         ),
         "alerts_title": "🚨 Weather Alerts",
+        "sat_title": "🛰️ REAL-TIME IMD SATELLITE IMAGERY (INSAT-3D / INSAT-3DR)",
+        "sat_channel_label": "Select Satellite Channel / Product:",
+        "sat_ir": "Infrared Channel 1 (IR1 - Cloud Top Temperature)",
+        "sat_vis": "Visible Spectrum (VIS - Daytime Clouds)",
+        "sat_wv": "Water Vapour Channel (WV - Atmospheric Moisture)",
+        "sat_embed": "Interactive IMD Satellite Viewer Portal",
+        "sat_source_note": (
+            "Satellite observations are streamed live from the India"
+            " Meteorological Department (IMD) INSAT-3D/3DR satellite network."
+        ),
         "aqi_title": "🍃 AIR QUALITY: ACTUAL VS. SAFE STANDARD",
         "overall_status": "Overall Status",
         "standard_limit": "Standard Limit",
@@ -73,7 +84,7 @@ TEXTS = {
     },
     "bn": {
         "college_name": "প্রভু জগৎবন্ধু কলেজ",
-        "college_sub": "আবহাওয়া পোর্টাল • হাওড়া",
+        "college_sub": "ক্যাম্পাস আবহাওয়া পোর্টাল • হাওড়া",
         "select_mode": "লোকেশন ইনপুট মোড নির্বাচন করুন:",
         "mode_preset": "কলেজ ক্যাম্পাস প্রিসেট",
         "mode_search": "মাইক্রো-লেন বা এলাকার নাম খুঁজুন",
@@ -102,6 +113,18 @@ TEXTS = {
             " করছে।"
         ),
         "alerts_title": "🚨 আবহাওয়া সতর্কতা",
+        "sat_title": (
+            "🛰️ রিয়েল-টাইম আইএমডি স্যাটেলাইট ইমেজারি (ইনস্যাট-৩ডি / ইনস্যাট-৩ডিআর)"
+        ),
+        "sat_channel_label": "স্যাটেলাইট চ্যানেল বা প্রোডাক্ট নির্বাচন করুন:",
+        "sat_ir": "ইনফ্রারেড চ্যানেল ১ (IR1 - মেঘের শীর্ষ তাপমাত্রা)",
+        "sat_vis": "দৃশ্যমান স্পেকট্রাম (VIS - দিনের বেলার মেঘ)",
+        "sat_wv": "জলীয় বাষ্প চ্যানেল (WV - বায়ুমণ্ডলীয় আর্দ্রতা)",
+        "sat_embed": "ইন্টারেক্টিভ আইএমডি স্যাটেলাইট ভিউয়ার পোর্টাল",
+        "sat_source_note": (
+            "উপগ্রহ চিত্রগুলি ভারত আবহাওয়া বিভাগ (IMD) INSAT-3D/3DR উপগ্রহ নেটওয়ার্ক"
+            " থেকে লাইভ স্ট্রিম করা হয়।"
+        ),
         "aqi_title": "🍃 বায়ুর গুণমান: প্রকৃত বনাম নিরাপদ আদর্শ মাত্রা",
         "overall_status": "সার্বিক অবস্থা",
         "standard_limit": "আদর্শ সীমা",
@@ -125,9 +148,8 @@ TEXTS = {
     },
 }
 
-# --- DYNAMIC STYLING & BACKGROUND INJECTION ---
+# Dynamic Styling
 THEME = "dark"
-
 if THEME == "dark":
   bg_gradient = "linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%)"
   card_bg = "rgba(30, 41, 59, 0.75)"
@@ -194,7 +216,7 @@ COLLEGE_LAT = 22.5822
 COLLEGE_LON = 88.2334
 
 
-# Helper: Load local image as Base64 string
+# Base64 Image Loader
 def get_base64_image(image_path):
   try:
     with open(image_path, "rb") as img_file:
@@ -209,7 +231,6 @@ logo_html_src = (
 )
 
 
-# Helper: Map WMO weather codes to emojis and labels
 def get_weather_display(code):
   if code == 0:
     return "☀️", "Sunny"
@@ -231,7 +252,7 @@ def get_weather_display(code):
     return "🌤️", "Fair"
 
 
-# Multi-Source Hybrid Weather Fetcher
+# Data Fetchers
 @st.cache_data(ttl=900)
 def fetch_weather_multi_source(lat, lon, location_name=""):
   data = None
@@ -292,7 +313,6 @@ def automated_microlocation_geocoder(user_query):
     return None, None, None
 
   headers = {"User-Agent": "PrabhuJagatbandhuCollege-WeatherPortal"}
-
   url_exact = f"https://nominatim.openstreetmap.org/search?q={requests.utils.quote(cleaned_query)}&format=json&limit=1"
   try:
     res = requests.get(url_exact, headers=headers, timeout=5).json()
@@ -425,7 +445,6 @@ T = TEXTS[lang_code]
 
 # --- HEADER CONTAINER WITH BASE64 LOGO & IST TIME ---
 col_head1, col_head2 = st.columns([4, 1])
-
 with col_head1:
   st.markdown(
       f"""
@@ -551,7 +570,7 @@ if data and "current_weather" in data:
   hourly = data.get("hourly", {})
   daily = data.get("daily", {})
 
-  # --- ATTRIBUTION & COORDINATE BADGE ---
+  # Attribution Badge
   st.markdown(
       f"""
         <div style="background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.3); color: #38bdf8; padding: 10px 14px; border-radius: 8px; margin-bottom: 15px; font-size: 0.85rem; line-height: 1.5;">
@@ -563,9 +582,8 @@ if data and "current_weather" in data:
       unsafe_allow_html=True,
   )
 
-  # --- WEATHER ALERTS ---
+  # Weather Alerts
   alerts = check_weather_alerts(current.get("weathercode", 0), hourly)
-
   if alerts:
     st.markdown(f"### {T['alerts_title']}")
     for title, msg in alerts:
@@ -575,6 +593,54 @@ if data and "current_weather" in data:
         st.warning(f"**{title}:** {msg}")
   else:
     st.markdown(T["no_alerts"])
+
+  st.markdown("<br>", unsafe_allow_html=True)
+
+  # --- EXPANDABLE / PROMINENT SATELLITE SECTION ---
+  with st.expander(f"🛰️ **{T['sat_title']}**", expanded=True):
+    sat_option = st.selectbox(
+        T["sat_channel_label"],
+        [T["sat_ir"], T["sat_vis"], T["sat_wv"], T["sat_embed"]],
+    )
+
+    if sat_option == T["sat_ir"]:
+      st.image(
+          "https://mausam.imd.gov.in/satellite/3DMSG_satimg/INSAT-3D-IR-1.jpg",
+          caption=(
+              "IMD INSAT-3D Infrared (IR1) - Real-Time Cloud Top Temperature"
+              " Map"
+          ),
+          use_container_width=True,
+      )
+    elif sat_option == T["sat_vis"]:
+      st.image(
+          "https://mausam.imd.gov.in/satellite/3DMSG_satimg/INSAT-3D-VIS.jpg",
+          caption="IMD INSAT-3D Visible (VIS) Channel - Daytime Cloud Albedo",
+          use_container_width=True,
+      )
+    elif sat_option == T["sat_wv"]:
+      st.image(
+          "https://mausam.imd.gov.in/satellite/3DMSG_satimg/INSAT-3D-WV.jpg",
+          caption=(
+              "IMD INSAT-3D Water Vapour (WV) Channel - Tropospheric Moisture"
+          ),
+          use_container_width=True,
+      )
+    else:
+      components.iframe(
+          "https://mausam.imd.gov.in/responsive/satellite.php",
+          height=550,
+          scrolling=True,
+      )
+
+    st.markdown(
+        f"""
+        <div style="font-size: 0.8rem; color: {sub_text}; margin-top: 6px;">
+            📌 <i>{T['sat_source_note']}</i>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
 
   st.markdown("<br>", unsafe_allow_html=True)
 
@@ -735,7 +801,6 @@ if data and "current_weather" in data:
     st.markdown(f"### {T['history_title']}")
     last_year_date = datetime.now(IST) - pd.DateOffset(years=1)
     ly_date_str = last_year_date.strftime("%Y-%m-%d")
-    ly_display_str = last_year_date.strftime("%B %d, %Y")
 
     archive_data = fetch_historical_archive(lat, lon, ly_date_str)
 
