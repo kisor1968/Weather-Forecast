@@ -129,6 +129,11 @@ TEXTS = {
                 " high-pressure synoptic weather systems."
             ),
         },
+        "references_title": "📖 Climate & Meteorological Research References",
+        "references_desc": (
+            "Primary scientific literature, reanalysis models, and observational"
+            " datasets supporting the portal analytics engine."
+        ),
         "export_title": "📥 Export Meteorological & Air Quality Report",
         "csv_btn": "📥 Download CSV Report",
         "txt_btn": "📄 Download Text Summary",
@@ -249,6 +254,11 @@ TEXTS = {
                 " যা নিম্ন ও উচ্চচাপের আবহাওয়া ব্যবস্থা বুঝতে অত্যন্ত গুরুত্বপূর্ণ।"
             ),
         },
+        "references_title": "📖 জলবায়ু ও আবহাওয়া সংক্রান্ত গবেষণা তথ্যসূত্র",
+        "references_desc": (
+            "পোর্টালের অ্যানালিটিক্স ইঞ্জিনকে সমর্থনকারী প্রাথমিক বৈজ্ঞানিক সাহিত্য,"
+            " পুনঃবিশ্লেষণ মডেল এবং পর্যবেক্ষণমূলক ডেটাসেট।"
+        ),
         "export_title": "📥 আবহাওয়া ও বায়ুর গুণমান প্রতিবেদন রপ্তানি করুন",
         "csv_btn": "📥 সিএসভি প্রতিবেদন ডাউনলোড করুন",
         "txt_btn": "📄 সারসংক্ষেপ ডাউনলোড করুন",
@@ -367,6 +377,11 @@ TEXTS = {
                 " दबाव प्रणालियों को समझने के लिए आवश्यक है।"
             ),
         },
+        "references_title": "📖 जलवायु और मौसम विज्ञान अनुसंधान संदर्भ",
+        "references_desc": (
+            "पोर्टल एनालिटिक्स इंजन का समर्थन करने वाले प्राथमिक वैज्ञानिक"
+            " साहित्य, पुनर्वलेषण मॉडल और अवलोकन संबंधी डेटासेट।"
+        ),
         "export_title": "📥 मौसम और वायु गुणवत्ता रिपोर्ट निर्यात करें",
         "csv_btn": "📥 CSV रिपोर्ट डाउनलोड करें",
         "txt_btn": "📄 सारांश रिपोर्ट डाउनलोड करें",
@@ -1257,6 +1272,38 @@ if data and "current_weather" in data:
                 <p style="color: {text_color}; font-size: 0.95rem; margin: 0; line-height: 1.6;">
                     <b>{selected_term}:</b> {term_definition}
                 </p>
+            </div>
+            """,
+          unsafe_allow_html=True,
+      )
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    # --- TRILINGUAL CLIMATE RESEARCH REFERENCES ---
+    with st.expander(f"📖 **{T['references_title']}**", expanded=False):
+      st.markdown(
+          f"""
+            <div style="background: {card_bg}; border: {card_border}; padding: 16px; border-radius: 8px; margin-top: 8px; font-size: 0.9rem; line-height: 1.6; color: {text_color};">
+                <p><b>1. Open-Meteo Global Reanalysis & Forecast API</b></p>
+                <ul>
+                    <li><b>Provider:</b> Open-Meteo.com (Open-Data Sponsorship via AWS Cloud-Optimized Datasets).</li>
+                    <li><b>Core Models:</b> ECMWF ERA5 Reanalysis, NOAA GFS, ICON (DWD), Météo-France, and UK Met Office.</li>
+                    <li><b>Citation:</b> Zippenfenig, P. (2023). <i>Open-Meteo.com Weather API</i> [Computer software]. Zenodo. https://doi.org/10.5281/zenodo.7970649</li>
+                </ul>
+                <p><b>2. India Meteorological Department (IMD) High-Resolution Gridded Datasets</b></p>
+                <ul>
+                    <li><b>Daily Gridded Rainfall (0.25° × 0.25°):</b> Pai, D. S., et al. (2014). Development of a new high spatial resolution long period daily gridded rainfall data set over India. <i>Mausam</i>, 65(1), 1–18.</li>
+                    <li><b>Daily Gridded Temperature:</b> Srivastava, A. K., et al. (2009). Development of a high resolution daily gridded temperature data set for the Indian region. <i>Atmospheric Science Letters</i>, 10(4), 249–254.</li>
+                </ul>
+                <p><b>3. INSAT-3D / INSAT-3DR Geostationary Satellite Network</b></p>
+                <ul>
+                    <li><b>Data Provider:</b> India Meteorological Department (IMD) & ISRO Space Applications Centre (SAC).</li>
+                    <li><b>Citation:</b> Kakar, R. K., et al. (2015). Meteorological payload and operational capabilities of INSAT-3D satellite system. <i>Current Science</i>, 108(4), 512–522.</li>
+                </ul>
+                <p><b>4. CPCB National Ambient Air Quality Standards (NAAQS - India)</b></p>
+                <ul>
+                    <li><b>Regulating Body:</b> Central Pollution Control Board (CPCB), Ministry of Environment, Forest and Climate Change, Government of India.</li>
+                </ul>
             </div>
             """,
           unsafe_allow_html=True,
