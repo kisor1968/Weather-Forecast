@@ -1096,7 +1096,7 @@ if data and "current_weather" in data:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # --- SIDE-BY-SIDE ANALYTICS ROW: MULTI-PARAMETER & HISTORICAL TREND ---
+    # --- SIDE-BY-SIDE ANALYTICS ROW WITH EQUAL CHART HEIGHTS ---
     col_analytics_left, col_analytics_right = st.columns(2)
 
     with col_analytics_left:
@@ -1134,12 +1134,18 @@ if data and "current_weather" in data:
         )
 
         if selected_params:
-          st.line_chart(df_hourly_multi[selected_params], height=320)
+          st.line_chart(df_hourly_multi[selected_params], height=350)
         else:
           st.info("Please select at least one parameter above.")
 
     with col_analytics_right:
       st.markdown(f"### {T['hist_trend_title']}")
+      # Add an invisible markdown spacer matching the height of the multiselect widget on the left
+      st.markdown(
+          "<div style='height: 54px; margin-bottom: 6px;'></div>",
+          unsafe_allow_html=True,
+      )
+
       try:
         current_start_date = datetime.strptime(daily["time"][0], "%Y-%m-%d")
         current_end_date = datetime.strptime(daily["time"][-1], "%Y-%m-%d")
@@ -1165,7 +1171,7 @@ if data and "current_weather" in data:
                   )[:7],
               }
           ).set_index("Day")
-          st.line_chart(df_hist_trend, height=320)
+          st.line_chart(df_hist_trend, height=350)
         else:
           st.info("Historical week trend data unavailable.")
       except Exception:
@@ -1230,7 +1236,7 @@ if data and "current_weather" in data:
     
     CURRENT METRICS:
     - Temperature: {current.get('temperature', 'N/A')}°C
-    - Air Quality (PM2.5): {aqi_data['current'].get('pm2_5', 'N/A') if aqi_data else 'N/Y'} µg/m³
+    - Air Quality (PM2.5): {aqi_data['current'].get('pm2_5', 'N/A') if aqi_data else 'N/A'} µg/m³
     - Status: {status_label if aqi_data else 'N/A'}
     
     Advisory: {advisory if aqi_data else 'Normal conditions active.'}
