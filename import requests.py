@@ -270,6 +270,17 @@ st.markdown(
         border-radius: 8px !important;
         padding: 8px 14px !important;
     }}
+    /* Fix for invisible download button text */
+    .stDownloadButton button, div.stButton > button {{
+        background-color: #1e293b !important;
+        color: #ffffff !important;
+        border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    }}
+    .stDownloadButton button:hover, div.stButton > button:hover {{
+        background-color: #3b82f6 !important;
+        color: #ffffff !important;
+        border-color: #3b82f6 !important;
+    }}
     .weather-card {{
         background: {card_bg};
         backdrop-filter: blur(10px);
