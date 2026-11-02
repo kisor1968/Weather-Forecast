@@ -53,13 +53,12 @@ TEXTS = {
             "🟢 **No severe weather alerts.** Normal outdoor conditions active."
         ),
         "alerts_title": "🚨 Weather Alerts",
-        "sat_title": "🛰️ REAL-TIME SATELLITE & RADAR IMAGERY (INSAT-3D / RAINVIEWER)",
+        "sat_title": "🛰️ REAL-TIME SATELLITE & RADAR IMAGERY (INSAT-3D / LIVE RADAR)",
         "sat_channel_label": "Select Satellite Channel / Product:",
+        "sat_radar": "🌐 Interactive Live Regional Cloud & Precipitation Radar",
         "sat_ir": "Infrared Channel 1 (IR1 - Cloud Top Temperature)",
         "sat_vis": "Visible Spectrum (VIS - Daytime Clouds)",
-        "sat_wv": "Water Vapour Channel (WV - Atmospheric Moisture)",
-        "sat_radar": "🌐 Interactive Live Regional Cloud & Precipitation Radar",
-        "sat_embed": "🔗 Launch Official IMD Interactive Satellite Portal",
+        "sat_embed": "🔗 Official IMD Interactive Satellite Portal",
         "sat_source_note": (
             "Satellite observations are streamed live from the India"
             " Meteorological Department (IMD) INSAT-3D/3DR satellite network."
@@ -115,14 +114,13 @@ TEXTS = {
         ),
         "alerts_title": "🚨 আবহাওয়া সতর্কতা",
         "sat_title": (
-            "🛰️ রিয়েল-টাইম স্যাটেলাইট ও রাডার চিত্র (ইনস্যাট-৩ডি / রেইনভিউয়ার)"
+            "🛰️ রিয়েল-টাইম স্যাটেলাইট ও রাডার চিত্র (ইনস্যাট-৩ডি / লাইভ রাডার)"
         ),
         "sat_channel_label": "স্যাটেলাইট চ্যানেল বা প্রোডাক্ট নির্বাচন করুন:",
+        "sat_radar": "🌐 ইন্টারেক্টিভ লাইভ আঞ্চলিক মেঘ ও বৃষ্টিপাত রাডার",
         "sat_ir": "ইনফ্রারেড চ্যানেল ১ (IR1 - মেঘের শীর্ষ তাপমাত্রা)",
         "sat_vis": "দৃশ্যমান স্পেকট্রাম (VIS - দিনের বেলার মেঘ)",
-        "sat_wv": "জলীয় বাষ্প চ্যানেল (WV - বায়ুমণ্ডলীয় আর্দ্রতা)",
-        "sat_radar": "🌐 ইন্টারেক্টিভ লাইভ আঞ্চলিক মেঘ ও বৃষ্টিপাত রাডার",
-        "sat_embed": "🔗 অফিসিয়াল IMD ইন্টারেক্টিভ স্যাটেলাইট পোর্টাল খুলুন",
+        "sat_embed": "🔗 অফিসিয়াল IMD ইন্টারেক্টিভ স্যাটেলাইট পোর্টাল",
         "sat_source_note": (
             "উপগ্রহ চিত্রগুলি ভারত আবহাওয়া বিভাগ (IMD) INSAT-3D/3DR উপগ্রহ নেটওয়ার্ক"
             " থেকে লাইভ স্ট্রিম করা হয়।"
@@ -598,63 +596,52 @@ if data and "current_weather" in data:
 
   st.markdown("<br>", unsafe_allow_html=True)
 
-  # --- REAL-TIME SATELLITE & RADAR IMAGERY SECTION ---
+  # --- REAL-TIME SATELLITE & RADAR IMAGERY SECTION (ROBUST FIX) ---
   with st.expander(f"🛰️ **{T['sat_title']}**", expanded=True):
     sat_option = st.selectbox(
         T["sat_channel_label"],
-        [
-            T["sat_ir"],
-            T["sat_vis"],
-            T["sat_wv"],
-            T["sat_radar"],
-            T["sat_embed"],
-        ],
+        [T["sat_radar"], T["sat_ir"], T["sat_vis"], T["sat_embed"]],
     )
 
-    sat_urls = {
-        T["sat_ir"]: "https://sathead.satnet.imd.gov.in/INSAT-3D/IR1.jpg",
-        T["sat_vis"]: "https://sathead.satnet.imd.gov.in/INSAT-3D/VIS.jpg",
-        T["sat_wv"]: "https://sathead.satnet.imd.gov.in/INSAT-3D/WV.jpg",
-    }
-
-    if sat_option in sat_urls:
-      target_url = sat_urls[sat_option]
-      try:
-        st.image(
-            target_url,
-            caption=f"INSAT-3D Real-Time Stream ({sat_option})",
-            use_container_width=True,
-        )
-      except Exception:
-        st.warning(
-            "⚠️ Direct image stream momentarily updating. Click below to view"
-            " live:"
-        )
-        st.markdown(
-            f"[🔗 Open Direct INSAT-3D {sat_option} Image Feed]({target_url})"
-        )
-
-    elif sat_option == T["sat_radar"]:
+    if sat_option == T["sat_radar"]:
+      # Fully interactive live regional weather radar centered on current coordinates
       components.iframe(
-          f"https://www.rainviewer.com/map.html?loc={lat},{lon},9&ofr=0&t=1&col=1&c=1&o=90&s=1&v=0&sm=1&sn=1",
-          height=500,
+          f"https://www.rainviewer.com/map.html?loc={lat},{lon},8&ofr=0&t=1&col=1&c=1&o=90&s=1&v=0&sm=1&sn=1",
+          height=520,
           scrolling=False,
       )
-
-    else:
+    elif sat_option == T["sat_ir"]:
       st.info(
-          "🔒 Official IMD Portal restricts direct frame embedding. Click"
-          " below to open the live interactive viewer directly:"
+          "📡 INSAT-3D Infrared Cloud Top Temperature Feed (Secure Direct"
+          " Link)"
       )
       st.markdown(
           """
             <div style="text-align: center; margin: 20px 0;">
-                <a href="https://mausam.imd.gov.in/responsive/satellite.php" target="_blank" style="background-color: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); display: inline-block;">
-                    🛰️ Open Official IMD INSAT-3D Satellite Viewer Portal
+                <a href="https://mausam.imd.gov.in/satellite/3DMSG_satimg/INSAT-3D-IR-1.jpg" target="_blank" style="background-color: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); display: inline-block;">
+                    🔍 Open Live INSAT-3D Infrared Image (IMD Portal)
                 </a>
             </div>
             """,
           unsafe_allow_html=True,
+      )
+    elif sat_option == T["sat_vis"]:
+      st.info("📡 INSAT-3D Visible Spectrum Daytime Cloud Cover Feed")
+      st.markdown(
+          """
+            <div style="text-align: center; margin: 20px 0;">
+                <a href="https://mausam.imd.gov.in/satellite/3DMSG_satimg/INSAT-3D-VIS.jpg" target="_blank" style="background-color: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); display: inline-block;">
+                    🔍 Open Live INSAT-3D Visible Image (IMD Portal)
+                </a>
+            </div>
+            """,
+          unsafe_allow_html=True,
+      )
+    else:
+      components.iframe(
+          "https://mausam.imd.gov.in/responsive/satellite.php",
+          height=520,
+          scrolling=True,
       )
 
     st.markdown(
