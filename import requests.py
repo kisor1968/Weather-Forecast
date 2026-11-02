@@ -173,6 +173,16 @@ st.markdown(
     h1, h2, h3, h4, h5, h6, p, span, label {{
         color: {text_color} !important;
     }}
+    /* Fix for invisible Expander text header */
+    .st-emotion-cache-p5msec, .st-emotion-cache-1ebn0f2, summary p, details summary div p {{
+        color: #0f172a !important;
+        font-weight: bold !important;
+    }}
+    details summary {{
+        background-color: #f1f5f9 !important;
+        border-radius: 8px !important;
+        padding: 8px 14px !important;
+    }}
     .weather-card {{
         background: {card_bg};
         backdrop-filter: blur(10px);
@@ -596,7 +606,7 @@ if data and "current_weather" in data:
 
   st.markdown("<br>", unsafe_allow_html=True)
 
-  # --- REAL-TIME SATELLITE & RADAR IMAGERY SECTION (FAILSAFE DESIGN) ---
+  # --- REAL-TIME SATELLITE & RADAR IMAGERY SECTION ---
   with st.expander(f"🛰️ **{T['sat_title']}**", expanded=True):
     sat_option = st.selectbox(
         T["sat_channel_label"],
@@ -604,7 +614,6 @@ if data and "current_weather" in data:
     )
 
     if sat_option == T["sat_radar"]:
-      # Embedded RainViewer radar (works seamlessly on desktop & mobile)
       components.iframe(
           f"https://www.rainviewer.com/map.html?loc={lat},{lon},8&ofr=0&t=1&col=1&c=1&o=90&s=1&v=0&sm=1&sn=1",
           height=520,
