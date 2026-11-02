@@ -53,12 +53,12 @@ TEXTS = {
             "🟢 **No severe weather alerts.** Normal outdoor conditions active."
         ),
         "alerts_title": "🚨 Weather Alerts",
-        "sat_title": "🛰️ REAL-TIME SATELLITE & RADAR IMAGERY (INSAT-3D / LIVE RADAR)",
+        "sat_title": "🛰️ REAL-TIME SATELLITE & RADAR IMAGERY (INSAT-3D / RADAR)",
         "sat_channel_label": "Select Satellite Channel / Product:",
         "sat_radar": "🌐 Interactive Live Regional Cloud & Precipitation Radar",
-        "sat_ir": "Infrared Channel 1 (IR1 - Cloud Top Temperature)",
+        "sat_ir": "Infrared Channel (IR1 - Cloud Top Temp)",
         "sat_vis": "Visible Spectrum (VIS - Daytime Clouds)",
-        "sat_embed": "🔗 Official IMD Interactive Satellite Portal",
+        "sat_embed": "🔗 Launch Official IMD Interactive Satellite Portal",
         "sat_source_note": (
             "Satellite observations are streamed live from the India"
             " Meteorological Department (IMD) INSAT-3D/3DR satellite network."
@@ -114,11 +114,11 @@ TEXTS = {
         ),
         "alerts_title": "🚨 আবহাওয়া সতর্কতা",
         "sat_title": (
-            "🛰️ রিয়েল-টাইম স্যাটেলাইট ও রাডার চিত্র (ইনস্যাট-৩ডি / লাইভ রাডার)"
+            "🛰️ রিয়েল-টাইম স্যাটেলাইট ও রাডার চিত্র (ইনস্যাট-৩ডি / রাডার)"
         ),
         "sat_channel_label": "স্যাটেলাইট চ্যানেল বা প্রোডাক্ট নির্বাচন করুন:",
         "sat_radar": "🌐 ইন্টারেক্টিভ লাইভ আঞ্চলিক মেঘ ও বৃষ্টিপাত রাডার",
-        "sat_ir": "ইনফ্রারেড চ্যানেল ১ (IR1 - মেঘের শীর্ষ তাপমাত্রা)",
+        "sat_ir": "ইনফ্রারেড চ্যানেল (IR1 - মেঘের শীর্ষ তাপমাত্রা)",
         "sat_vis": "দৃশ্যমান স্পেকট্রাম (VIS - দিনের বেলার মেঘ)",
         "sat_embed": "🔗 অফিসিয়াল IMD ইন্টারেক্টিভ স্যাটেলাইট পোর্টাল",
         "sat_source_note": (
@@ -596,7 +596,7 @@ if data and "current_weather" in data:
 
   st.markdown("<br>", unsafe_allow_html=True)
 
-  # --- REAL-TIME SATELLITE & RADAR IMAGERY SECTION (ROBUST FIX) ---
+  # --- REAL-TIME SATELLITE & RADAR IMAGERY SECTION (FAILSAFE DESIGN) ---
   with st.expander(f"🛰️ **{T['sat_title']}**", expanded=True):
     sat_option = st.selectbox(
         T["sat_channel_label"],
@@ -604,7 +604,7 @@ if data and "current_weather" in data:
     )
 
     if sat_option == T["sat_radar"]:
-      # Fully interactive live regional weather radar centered on current coordinates
+      # Embedded RainViewer radar (works seamlessly on desktop & mobile)
       components.iframe(
           f"https://www.rainviewer.com/map.html?loc={lat},{lon},8&ofr=0&t=1&col=1&c=1&o=90&s=1&v=0&sm=1&sn=1",
           height=520,
@@ -612,36 +612,47 @@ if data and "current_weather" in data:
       )
     elif sat_option == T["sat_ir"]:
       st.info(
-          "📡 INSAT-3D Infrared Cloud Top Temperature Feed (Secure Direct"
-          " Link)"
+          "📡 IMD INSAT-3D Infrared (IR1) Cloud Top Temperature Product"
       )
       st.markdown(
           """
-            <div style="text-align: center; margin: 20px 0;">
-                <a href="https://mausam.imd.gov.in/satellite/3DMSG_satimg/INSAT-3D-IR-1.jpg" target="_blank" style="background-color: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); display: inline-block;">
-                    🔍 Open Live INSAT-3D Infrared Image (IMD Portal)
+            <div style="text-align: center; margin: 25px 0;">
+                <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 12px;">
+                    IMD dynamic image paths update constantly on government servers.<br>Access the official INSAT-3D IR feed securely:
+                </p>
+                <a href="https://mausam.imd.gov.in/responsive/satellite.php" target="_blank" style="background-color: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); display: inline-block;">
+                    🔍 Launch INSAT-3D Infrared Channel (IMD Portal)
                 </a>
             </div>
             """,
           unsafe_allow_html=True,
       )
     elif sat_option == T["sat_vis"]:
-      st.info("📡 INSAT-3D Visible Spectrum Daytime Cloud Cover Feed")
+      st.info("📡 IMD INSAT-3D Visible (VIS) Daytime Cloud Coverage")
       st.markdown(
           """
-            <div style="text-align: center; margin: 20px 0;">
-                <a href="https://mausam.imd.gov.in/satellite/3DMSG_satimg/INSAT-3D-VIS.jpg" target="_blank" style="background-color: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); display: inline-block;">
-                    🔍 Open Live INSAT-3D Visible Image (IMD Portal)
+            <div style="text-align: center; margin: 25px 0;">
+                <p style="color: #cbd5e1; font-size: 0.9rem; margin-bottom: 12px;">
+                    IMD dynamic image paths update constantly on government servers.<br>Access the official INSAT-3D VIS feed securely:
+                </p>
+                <a href="https://mausam.imd.gov.in/responsive/satellite.php" target="_blank" style="background-color: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); display: inline-block;">
+                    🔍 Launch INSAT-3D Visible Channel (IMD Portal)
                 </a>
             </div>
             """,
           unsafe_allow_html=True,
       )
     else:
-      components.iframe(
-          "https://mausam.imd.gov.in/responsive/satellite.php",
-          height=520,
-          scrolling=True,
+      st.info("🔒 Official India Meteorological Department Satellite Hub")
+      st.markdown(
+          """
+            <div style="text-align: center; margin: 25px 0;">
+                <a href="https://mausam.imd.gov.in/responsive/satellite.php" target="_blank" style="background-color: #059669; color: white; padding: 14px 28px; text-decoration: none; font-weight: bold; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); display: inline-block; font-size: 1rem;">
+                    🛰️ Open Official IMD INSAT-3D Satellite Portal
+                </a>
+            </div>
+            """,
+          unsafe_allow_html=True,
       )
 
     st.markdown(
