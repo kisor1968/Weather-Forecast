@@ -103,7 +103,7 @@ TEXTS = {
             "Select Parameters to Compare (Hourly Horizon):"
         ),
         "hist_trend_title": (
-            "📈 Historical Weather Trend Comparison (This Week vs. Last Year)"
+            "📈 Historical Weather Trend (This Week vs. Last Year)"
         ),
         "export_title": "📥 Export Meteorological & Air Quality Report",
         "csv_btn": "📥 Download CSV Report",
@@ -202,7 +202,7 @@ TEXTS = {
         "multi_plot_title": "📊 বহু-পরামিতি আবহাওয়া বিশ্লেষণ",
         "multi_plot_select": "তুলনা করার জন্য পরামিতি নির্বাচন করুন (প্রতি ঘণ্টা):",
         "hist_trend_title": (
-            "📈 ঐতিহাসিক আবহাওয়া প্রবণতা তুলনা (চলতি সপ্তাহ বনাম গত বছর)"
+            "📈 ঐতিহাসিক আবহাওয়া প্রবণতা (চলতি সপ্তাহ বনাম গত বছর)"
         ),
         "export_title": "📥 আবহাওয়া ও বায়ুর গুণমান প্রতিবেদন রপ্তানি করুন",
         "csv_btn": "📥 সিএসভি প্রতিবেদন ডাউনলোড করুন",
@@ -299,7 +299,7 @@ TEXTS = {
             "तुलना के लिए पैरामीटर चुनें (प्रति घंटा क्षितिज):"
         ),
         "hist_trend_title": (
-            "📈 ऐतिहासिक मौसम प्रवृत्ति तुलना (इस सप्ताह बनाम पिछला वर्ष)"
+            "📈 ऐतिहासिक मौसम प्रवृत्ति (इस सप्ताह बनाम पिछला वर्ष)"
         ),
         "export_title": "📥 मौसम और वायु गुणवत्ता रिपोर्ट निर्यात करें",
         "csv_btn": "📥 CSV रिपोर्ट डाउनलोड करें",
@@ -1096,80 +1096,80 @@ if data and "current_weather" in data:
 
     st.markdown("<br>", unsafe_allow_html=True)
 
-    # --- MULTI-PARAMETER PLOTTING & ANALYTICS ---
-    st.markdown(f"### {T['multi_plot_title']}")
-    if hourly and "time" in hourly:
-      h_times = [
-          datetime.fromisoformat(t).strftime("%m-%d %H:%M")
-          for t in hourly["time"][:24]
-      ]
-      h_temps = hourly["temperature_2m"][:24]
-      h_humidity = hourly["relativehumidity_2m"][:24]
-      h_precip = hourly["precipitation"][:24]
-      h_gusts = hourly["windgusts_10m"][:24]
+    # --- SIDE-BY-SIDE ANALYTICS ROW: MULTI-PARAMETER & HISTORICAL TREND ---
+    col_analytics_left, col_analytics_right = st.columns(2)
 
-      df_hourly_multi = pd.DataFrame(
-          {
-              "Time": h_times,
-              "Temperature (°C)": h_temps,
-              "Humidity (%)": h_humidity,
-              "Precipitation (mm)": h_precip,
-              "Wind Gusts (km/h)": h_gusts,
-          }
-      ).set_index("Time")
+    with col_analytics_left:
+      st.markdown(f"### {T['multi_plot_title']}")
+      if hourly and "time" in hourly:
+        h_times = [
+            datetime.fromisoformat(t).strftime("%m-%d %H:%M")
+            for t in hourly["time"][:24]
+        ]
+        h_temps = hourly["temperature_2m"][:24]
+        h_humidity = hourly["relativehumidity_2m"][:24]
+        h_precip = hourly["precipitation"][:24]
+        h_gusts = hourly["windgusts_10m"][:24]
 
-      selected_params = st.multiselect(
-          T["multi_plot_select"],
-          [
-              "Temperature (°C)",
-              "Humidity (%)",
-              "Precipitation (mm)",
-              "Wind Gusts (km/h)",
-          ],
-          default=["Temperature (°C)", "Humidity (%)"],
-      )
+        df_hourly_multi = pd.DataFrame(
+            {
+                "Time": h_times,
+                "Temperature (°C)": h_temps,
+                "Humidity (%)": h_humidity,
+                "Precipitation (mm)": h_precip,
+                "Wind Gusts (km/h)": h_gusts,
+            }
+        ).set_index("Time")
 
-      if selected_params:
-        st.line_chart(df_hourly_multi[selected_params], height=320)
-      else:
-        st.info(
-            "Please select at least one parameter above to render the chart."
+        selected_params = st.multiselect(
+            T["multi_plot_select"],
+            [
+                "Temperature (°C)",
+                "Humidity (%)",
+                "Precipitation (mm)",
+                "Wind Gusts (km/h)",
+            ],
+            default=["Temperature (°C)", "Humidity (%)"],
+            key="multi_param_select_key",
         )
 
-    st.markdown("<br>", unsafe_allow_html=True)
+        if selected_params:
+          st.line_chart(df_hourly_multi[selected_params], height=320)
+        else:
+          st.info("Please select at least one parameter above.")
 
-    # --- HISTORICAL WEATHER TREND COMPARISON (THIS WEEK VS. LAST YEAR) ---
-    st.markdown(f"### {T['hist_trend_title']}")
-    try:
-      current_start_date = datetime.strptime(daily["time"][0], "%Y-%m-%d")
-      current_end_date = datetime.strptime(daily["time"][-1], "%Y-%m-%d")
+    with col_analytics_right:
+      st.markdown(f"### {T['hist_trend_title']}")
+      try:
+        current_start_date = datetime.strptime(daily["time"][0], "%Y-%m-%d")
+        current_end_date = datetime.strptime(daily["time"][-1], "%Y-%m-%d")
 
-      ly_start_date = current_start_date - pd.DateOffset(years=1)
-      ly_end_date = current_end_date - pd.DateOffset(years=1)
+        ly_start_date = current_start_date - pd.DateOffset(years=1)
+        ly_end_date = current_end_date - pd.DateOffset(years=1)
 
-      ly_week_data = fetch_historical_week_archive(
-          lat,
-          lon,
-          ly_start_date.strftime("%Y-%m-%d"),
-          ly_end_date.strftime("%Y-%m-%d"),
-      )
+        ly_week_data = fetch_historical_week_archive(
+            lat,
+            lon,
+            ly_start_date.strftime("%Y-%m-%d"),
+            ly_end_date.strftime("%Y-%m-%d"),
+        )
 
-      if ly_week_data and "daily" in ly_week_data:
-        ly_daily = ly_week_data["daily"]
-        df_hist_trend = pd.DataFrame(
-            {
-                "Day": [f"Day {i+1}" for i in range(7)],
-                "This Week Max Temp (°C)": daily["temperature_2m_max"][:7],
-                "Last Year Max Temp (°C)": ly_daily.get(
-                    "temperature_2m_max", [0] * 7
-                )[:7],
-            }
-        ).set_index("Day")
-        st.line_chart(df_hist_trend, height=300)
-      else:
-        st.info("Historical week trend data unavailable for this coordinate.")
-    except Exception:
-      st.info("Could not load historical week comparison chart.")
+        if ly_week_data and "daily" in ly_week_data:
+          ly_daily = ly_week_data["daily"]
+          df_hist_trend = pd.DataFrame(
+              {
+                  "Day": [f"Day {i+1}" for i in range(7)],
+                  "This Week Max Temp (°C)": daily["temperature_2m_max"][:7],
+                  "Last Year Max Temp (°C)": ly_daily.get(
+                      "temperature_2m_max", [0] * 7
+                  )[:7],
+              }
+          ).set_index("Day")
+          st.line_chart(df_hist_trend, height=320)
+        else:
+          st.info("Historical week trend data unavailable.")
+      except Exception:
+        st.info("Could not load historical week comparison chart.")
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -1230,7 +1230,7 @@ if data and "current_weather" in data:
     
     CURRENT METRICS:
     - Temperature: {current.get('temperature', 'N/A')}°C
-    - Air Quality (PM2.5): {aqi_data['current'].get('pm2_5', 'N/A') if aqi_data else 'N/A'} µg/m³
+    - Air Quality (PM2.5): {aqi_data['current'].get('pm2_5', 'N/A') if aqi_data else 'N/Y'} µg/m³
     - Status: {status_label if aqi_data else 'N/A'}
     
     Advisory: {advisory if aqi_data else 'Normal conditions active.'}
