@@ -663,10 +663,26 @@ def fetch_historical_archive(lat, lon, target_date_str):
 def fetch_historical_week_archive(lat, lon, start_date_str, end_date_str):
   archive_url = f"https://archive-api.open-meteo.com/v1/archive?latitude={lat}&longitude={lon}&start_date={start_date_str}&end_date={end_date_str}&daily=temperature_2m_max,temperature_2m_min&timezone=auto"
   try:
-    res = requests.get(archive_url)
-    return res.json()
+    res = requests.get(archive_url, timeout=5)
+    if res.status_code == 200:
+      data = res.json()
+      if "daily" in data and data["daily"].get("temperature_2m_max"):
+        return data
   except Exception:
-    return None
+    pass
+
+  # Fallback: If exact current week archive has a publishing lag, shift back by 30 days
+  try:
+    s_date = datetime.strptime(start_date_str, "%Y-%m-%d") - timedelta(days=30)
+    e_date = datetime.strptime(end_date_str, "%Y-%m-%d") - timedelta(days=30)
+    fallback_url = f"https://archive-api.open-meteo.com/v1/archive?latitude={lat}&longitude={lon}&start_date={s_date.strftime('%Y-%m-%d')}&end_date={e_date.strftime('%Y-%m-%d')}&daily=temperature_2m_max,temperature_2m_min&timezone=auto"
+    res = requests.get(fallback_url, timeout=5)
+    if res.status_code == 200:
+      return res.json()
+  except Exception:
+    pass
+
+  return None
 
 
 @st.cache_data(ttl=3600)
@@ -1497,10 +1513,4 @@ st.markdown(
             {T['footer_text']}
         </p>
         <div style="display: inline-flex; border-radius: 4px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.2); font-family: monospace; font-size: 0.85rem; font-weight: bold;">
-            <div style="background-color: #555555; color: #ffffff; padding: 6px 12px; letter-spacing: 1px;">{T['visitors']}</div>
-            <div style="background-color: #3b82f6; color: #ffffff; padding: 6px 12px; letter-spacing: 1px;">{visitor_count}</div>
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
+            <div style="background-color: #555555; color: #
