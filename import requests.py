@@ -1513,4 +1513,10 @@ st.markdown(
             {T['footer_text']}
         </p>
         <div style="display: inline-flex; border-radius: 4px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.2); font-family: monospace; font-size: 0.85rem; font-weight: bold;">
-            <div style="background-color: #555555; color: #
+            <div style="background-color: #555555; color: #ffffff; padding: 6px 12px; letter-spacing: 1px;">{T['visitors']}</div>
+            <div style="background-color: #3b82f6; color: #ffffff; padding: 6px 12px; letter-spacing: 1px;">{visitor_count}</div>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
